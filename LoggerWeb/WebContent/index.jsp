@@ -97,7 +97,7 @@ $(document).ready(function(){
 		      }
 	}).on("click", function(event){
 		//alert('go UP');
-		updateMotorPos(1, 0);
+		//updateMotorPos(1, 0);
 		zeroPos(1);
 	})
 	
@@ -107,7 +107,7 @@ $(document).ready(function(){
 		      }
 	}).on("click", function(event){
 		//alert('go UP');
-		updateMotorPos(2, 0);
+		//updateMotorPos(2, 0);
 		zeroPos(2);
 	})
 	
@@ -184,6 +184,7 @@ $(document).ready(function(){
 		icons: {
 			primary: "ui-icon-arrowthick-1-e"
 	      }
+		
 	}).on("click", function(event){
 		logger(false);
 	})
@@ -219,6 +220,19 @@ $(document).ready(function(){
 		  
 		  success: function( result ) {
 			  updateLog(result, "#kinectLogArea");
+		  }
+		});
+	}
+	
+	function loggerInit(){
+		$("#loggerStart").button("disable");
+		$("#loggerStop").button("disable");		
+		$.ajax({
+			url: "initLogger.do",
+		   success: function( result ) {
+			   $("#loggerStart").button("enable");
+			   $("#loggerStop").button("enable");
+			   updateLog(result, "#kinectLogArea");
 		  }
 		});
 	}
@@ -280,6 +294,7 @@ $(document).ready(function(){
 		    },
 		  
 		  success: function( result ) {
+			  updateMotorPos(motor, 0);
 			  updateLog(result, "#emotimoLogArea");
 		  }
 		});
@@ -425,8 +440,8 @@ $(document).ready(function(){
 	
 	$( "#motor-1-pos-slider" ).slider({
       orientation: "horizontal",
-      min: -5000,
-      max: 5000,
+      min: -20000,
+      max: 20000,
       value: motor1_pos,
       animate: true,
       slide: function( event, ui ) {
@@ -437,8 +452,8 @@ $(document).ready(function(){
 	
 	$( "#motor-2-pos-slider" ).slider({
 	      orientation: "vertical",
-	      min: -5000,
-	      max: 5000,
+	      min: -10000,
+	      max: 10000,
 	      value: motor2_pos,
 	      animate: true,
 	      slide: function( event, ui ) {
@@ -499,6 +514,13 @@ $(document).ready(function(){
 		$("#motor-"+motor+"-pos-slider").slider('value',pos);
 		//alert(motor+' '+pos);
 	}
+	
+	
+	loggerInit();
+
+	//$('#loggerStart').button("disable");
+	//$("#loggerStart").prop('disabled', false);
+	//   $("#loggerStop").prop('disabled', false);
 })
 
 </script>

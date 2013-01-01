@@ -56,6 +56,7 @@ public class LoggerController {
 		model.addObject("isInitialized", serial.isInitialized());
 		model.addObject("motorPos1", serial.getCurPos(1));
 		model.addObject("motorPos2", serial.getCurPos(2));
+		model.addObject("isLoggerStarted", depthLogger.isStarted());
 		
 				
 		return model;
@@ -71,12 +72,33 @@ public class LoggerController {
     public @ResponseBody String init(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		System.out.println("INITIALIZE!");
 		int serialInitResult = serial.initialize();
-		depthLogger = new LoggerProcess();
+		//depthLogger = new LoggerProcess();
 		
 		if(serialInitResult == SerialComm.CONN_STATE_SUCCESS || serialInitResult == SerialComm.CONN_STATE_ALREADY_CONNECTED)
 			return "success";
 		else
 			return "fail";
+    }
+	
+	@RequestMapping("/initLogger.do")
+    public @ResponseBody String initLogger(HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+		//depthLogger = new LoggerProcess();
+		if(!depthLogger.isInitalized()){
+			
+			depthLogger.startLogger(true);		
+			Thread.sleep(5000);
+			depthLogger.stopLogger();
+			Thread.sleep(1000);
+			depthLogger.startLogger(true);		
+			Thread.sleep(5000);
+			depthLogger.stopLogger();
+		}
+		
+		String log = depthLogger.getLog();
+		depthLogger.flushLog();
+		return log;
+		
     }
 	
 	@RequestMapping("/logger.do")

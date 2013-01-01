@@ -25,6 +25,7 @@ public class LoggerProcess {
 	int isViewer = 0;
 	
 	boolean isStarted = false;
+	boolean isInitalized  = false;
 	
 	public LoggerProcess(){
 		init();
@@ -33,15 +34,27 @@ public class LoggerProcess {
 	
 	
 	public boolean init(){
-		processBuilder = new ProcessBuilder(command, System.getProperty("user.home")+"/LoggerHome", isRGB2BGR+"", isUpsideDown+"");
-		log += "executed: "+command+" "+System.getProperty("user.home")+"/LoggerHome"+" "+isRGB2BGR+""+" "+isUpsideDown+""+"\n";
-		return true;
+		return init(false);
 	}
+	public boolean init(boolean isPreRunning){
+		if(isPreRunning){
+			processBuilder = new ProcessBuilder(command, System.getProperty("user.home")+"/LoggerHome", isRGB2BGR+"", isUpsideDown+"", "0", "0");
+			log += "executed: "+command+" "+System.getProperty("user.home")+"/LoggerHome"+" "+isRGB2BGR+""+" "+isUpsideDown+""+"0\n";	
+		}else{
+			processBuilder = new ProcessBuilder(command, System.getProperty("user.home")+"/LoggerHome", isRGB2BGR+"", isUpsideDown+"", "0", "1");
+			log += "executed: "+command+" "+System.getProperty("user.home")+"/LoggerHome"+" "+isRGB2BGR+""+" "+isUpsideDown+""+"1\n";
+		}
+		return true;
+	}	
 	
 	public void startLogger(){
+		startLogger(true);
+	}
+	
+	public void startLogger(boolean isPreRunning){
 		if(!isStarted){
 			try {
-				init();
+				init(isPreRunning);
 				log += "Logger started.";
 				process = processBuilder.start();
 				
@@ -49,6 +62,9 @@ public class LoggerProcess {
 				outputReader = (new Thread(new SerialReader(input)));
 				outputReader.start();
 				
+				if(isPreRunning){
+					isInitalized = true;
+				}
 				
 				//System.out.println("KilleD!!!"+getPid(process));
 				//Runtime.getRuntime().exec("kill -2 "+getPid(process));
@@ -71,6 +87,10 @@ public class LoggerProcess {
 	}
 	
 	public void stopLogger(){
+		stopLogger(false);
+	}
+	
+	public void stopLogger(boolean isPreRunning){
 		if(isStarted){
 			try {
 				log += "Logger stopped.";
@@ -205,7 +225,21 @@ public class LoggerProcess {
 		else
 			return false;
 	}
-	
+
+
+	public boolean isStarted() {
+		return isStarted;
+	}
+
+
+	public void setStarted(boolean isStarted) {
+		this.isStarted = isStarted;
+	}
+
+
+	public boolean isInitalized() {
+		return isInitalized;
+	}
 }
 
 
