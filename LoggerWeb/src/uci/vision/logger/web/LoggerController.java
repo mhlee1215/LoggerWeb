@@ -37,10 +37,18 @@ public class LoggerController {
 	@RequestMapping("/index.do")
     public ModelAndView index(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
+		int apachePort = ServletRequestUtils.getIntParameter(request, "apachePort", 80);
 		ModelAndView model = new ModelAndView("index");
-		
+		model.addObject("apachePort", apachePort);
 				
 		return model;
+    }
+	
+	@RequestMapping("/init.do")
+    public @ResponseBody String init(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		System.out.println("INITIALIZE!");
+		serial.initialize();
+		return "Success";
     }
 	
 	@RequestMapping("/flush.do")
@@ -49,7 +57,9 @@ public class LoggerController {
 		int motor = ServletRequestUtils.getIntParameter(request, "motor", 0);
 		int direction = ServletRequestUtils.getIntParameter(request, "direction", 0);
 		
-		serial.movie(motor, direction);
+		serial.flush();
+		serial.getCurPos(1);
+		serial.getCurPos(2);
 		String log = SerialComm.getLog();
 		SerialComm.flushLog();
 		return log;
@@ -62,6 +72,17 @@ public class LoggerController {
 		int direction = ServletRequestUtils.getIntParameter(request, "direction", 0);
 		
 		serial.movie(motor, direction);
+		String log = SerialComm.getLog();
+		SerialComm.flushLog();
+		return log;
+    }
+	
+	@RequestMapping("/zeroPos.do")
+    public @ResponseBody String zeroPos(HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+		int motor = ServletRequestUtils.getIntParameter(request, "motor", 0);
+				
+		serial.setZeropos(motor);
 		String log = SerialComm.getLog();
 		SerialComm.flushLog();
 		return log;

@@ -26,7 +26,7 @@ public class SerialComm implements SerialPortEventListener {
         /** The port we're normally going to use. */
 	private static final String PORT_NAMES[] = { 
 			"/dev/tty.usbserial-A9007UX1", // Mac OS X
-                        "/dev/ttyACM0", // Raspberry Pi
+                        "/dev/ttyACM", // Raspberry Pi
 			"/dev/ttyUSB0", // Linux
 			"COM3", // Windows
 	};
@@ -47,10 +47,20 @@ public class SerialComm implements SerialPortEventListener {
 	private static  String log;
 	private static final int EMOTIMO_POS_UNDEFINED = -999999;
 
-	public void initialize() {
+	//private static int curPortIdx = 0;
+	
+	public void initialize(){
+		initialize(0);
+	}
+	
+	public void initialize(int curPortIndex) {
+		if(curPortIndex > 10){
+			System.out.println("Totally Could not find COM port.");
+			return;
+		}
                 // the next line is for Raspberry Pi and 
                 // gets us into the while loop and was suggested here was suggested http://www.raspberrypi.org/phpBB3/viewtopic.php?f=81&t=32186
-                System.setProperty("gnu.io.rxtx.SerialPorts", "/dev/ttyACM0");
+        System.setProperty("gnu.io.rxtx.SerialPorts", "/dev/ttyACM"+curPortIndex);
 
 		CommPortIdentifier portId = null;
 		Enumeration portEnum = CommPortIdentifier.getPortIdentifiers();
@@ -61,14 +71,15 @@ public class SerialComm implements SerialPortEventListener {
 			CommPortIdentifier currPortId = (CommPortIdentifier) portEnum.nextElement();
 			System.out.println(currPortId.getName());
 			for (String portName : PORT_NAMES) {
-				if (currPortId.getName().equals(portName)) {
+				if (currPortId.getName().startsWith(portName)) {
 					portId = currPortId;
 					break;
 				}
 			}
 		}
 		if (portId == null) {
-			System.out.println("Could not find COM port.");
+			//System.out.println("Could not find COM port.");
+			initialize(curPortIndex+1);
 			return;
 		}
 
@@ -128,6 +139,10 @@ public class SerialComm implements SerialPortEventListener {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	public void setZeropos(int motor){
+		serialWriter("zm "+motor);
 	}
 	
 	public int getCurPos(int motor){
