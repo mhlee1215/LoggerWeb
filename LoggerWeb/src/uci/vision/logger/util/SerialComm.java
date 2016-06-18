@@ -11,6 +11,7 @@ import gnu.io.SerialPortEventListener;
 
 import java.util.Enumeration;
 import java.util.Scanner;
+import java.lang.reflect.Field;
 
 /**
  * 
@@ -51,6 +52,19 @@ public class SerialComm implements SerialPortEventListener {
 	//private static int curPortIdx = 0;
 	
 	public void initialize(){
+		System.setProperty( "java.library.path", "/usr/lib/jni" );
+
+		Field fieldSysPath;
+		try {
+			fieldSysPath = ClassLoader.class.getDeclaredField( "sys_paths" );
+			fieldSysPath.setAccessible( true );
+			fieldSysPath.set( null, null );
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
+		
+		
 		initialize(0);
 	}
 	
@@ -62,7 +76,9 @@ public class SerialComm implements SerialPortEventListener {
                 // the next line is for Raspberry Pi and 
                 // gets us into the while loop and was suggested here was suggested http://www.raspberrypi.org/phpBB3/viewtopic.php?f=81&t=32186
 		//java -Djava.library.path=/usr/lib/jni -cp /usr/share/java/RXTXcomm.jar:. TwoWaySerialComm
-		System.setProperty("java.library.path", System.getProperty("java.library.path")+":/usr/lib/jni");
+		
+		
+		//System.out.println(">>>>"+System.getProperty("java.library.path"));
         System.setProperty("gnu.io.rxtx.SerialPorts", "/dev/ttyACM"+curPortIndex);
 
 		CommPortIdentifier portId = null;
