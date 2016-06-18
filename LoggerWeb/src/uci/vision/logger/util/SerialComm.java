@@ -7,7 +7,8 @@ import java.io.OutputStream;
 import gnu.io.CommPortIdentifier; 
 import gnu.io.SerialPort;
 import gnu.io.SerialPortEvent; 
-import gnu.io.SerialPortEventListener; 
+import gnu.io.SerialPortEventListener;
+
 import java.util.Enumeration;
 import java.util.Scanner;
 
@@ -60,6 +61,8 @@ public class SerialComm implements SerialPortEventListener {
 		}
                 // the next line is for Raspberry Pi and 
                 // gets us into the while loop and was suggested here was suggested http://www.raspberrypi.org/phpBB3/viewtopic.php?f=81&t=32186
+		//java -Djava.library.path=/usr/lib/jni -cp /usr/share/java/RXTXcomm.jar:. TwoWaySerialComm
+		System.setProperty("java.library.path", "/usr/lib/jni");
         System.setProperty("gnu.io.rxtx.SerialPorts", "/dev/ttyACM"+curPortIndex);
 
 		CommPortIdentifier portId = null;
