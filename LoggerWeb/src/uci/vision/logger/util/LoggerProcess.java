@@ -12,7 +12,7 @@ public class LoggerProcess {
 	//String command = "~/cvLogger";
 	//String command = "~/Downloads/Logger_libfreenect_custom/bin/freenect-cvdemo";
 	//String[] command = {System.getProperty("user.home")+"/cvLogger "+System.getProperty("user.home")};
-	String command = System.getProperty("user.home")+"/cvLogger";
+	String command = System.getProperty("user.home")+"/LoggerHome/cvLogger";
 	
 	ProcessBuilder processBuilder;
 	Process process;
