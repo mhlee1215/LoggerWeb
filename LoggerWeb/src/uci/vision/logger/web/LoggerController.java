@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
+import uci.vision.logger.util.LoggerProcess;
 import uci.vision.logger.util.SerialComm;
 
 
@@ -28,6 +29,7 @@ public class LoggerController {
 	private Logger logger = Logger.getLogger(getClass());
 	
 	private static SerialComm serial = new SerialComm();
+	private static LoggerProcess depthLogger = new LoggerProcess();
 	
 	public LoggerController(){
 		System.out.println("INITIALIZE!");
@@ -48,7 +50,29 @@ public class LoggerController {
     public @ResponseBody String init(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		System.out.println("INITIALIZE!");
 		serial.initialize();
+		depthLogger = new LoggerProcess();
 		return "Success";
+    }
+	
+	@RequestMapping("/logger.do")
+    public @ResponseBody String logger(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		boolean isStart = ServletRequestUtils.getBooleanParameter(request, "isStart", false);
+		
+		if(isStart)
+			depthLogger.startLogger();
+		else
+			depthLogger.stopLogger();
+		
+		String log = depthLogger.getLog();
+		depthLogger.flushLog();
+		return log;
+    }
+	
+	@RequestMapping("/loggerFlush.do")
+    public @ResponseBody String loggerFlush(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		String log = depthLogger.getLog();
+		depthLogger.flushLog();
+		return log;
     }
 	
 	@RequestMapping("/flush.do")
