@@ -245,6 +245,8 @@ $(document).ready(function(){
 </script>
 
 <div id="wrapper">
+	<H1>Logger Controlling System</H1>
+	contact info: <a href="mailto:minhaenl@ics.uci.edu" target="_top">minhaenl_at_ics_dot_uci_dot_edu</a><br>
 	Home: <%=System.getProperty("user.home")%><br>
 	<a href="instruction.do">Install Instruction</a><br>
 	<button id="init">Init</button><button id="flush">flush</button><button id="zeroPos1">zero Pos 1</button><button id="zeroPos2">zero Pos 2</button><br>
@@ -253,7 +255,6 @@ $(document).ready(function(){
 	<button id="moveLeft">left</button>
 	<button id="moveRight">right</button><br>
 	<button id="loggerStart">LoggerStart</button><button id="loggerStop">LoggerStop</button><br>
-	
 	
 	
 	<div align="center">

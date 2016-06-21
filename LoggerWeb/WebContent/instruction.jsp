@@ -8,8 +8,7 @@
 </head>
 <body>
 <a href="https://openkinect.org/wiki/Getting_Started">https://openkinect.org/wiki/Getting_Started</a><br>
-sudo apt-get install -y git-core cmake freeglut3-dev pkg-config build-essential libxmu-dev libxi-dev libusb-1.0-0-dev libopencv-dev libboost-all-dev<br>
-
+sudo apt-get install -y git-core cmake freeglut3-dev pkg-config build-essential libxmu-dev libxi-dev libusb-1.0-0-dev libopencv-dev libboost-all-dev librxtx-java<br> 
 <p>Move to Download folder</p><br>
 cd ~/Downloads<br>
 <p>Download Logger</p><br>
