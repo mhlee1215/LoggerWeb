@@ -25,6 +25,11 @@ public class LoggerProcess {
 		log = "";
 	}
 	
+	public boolean init(){
+		processBuilder = new ProcessBuilder(command, System.getProperty("user.home"));
+		return true;
+	}
+	
 	public void startLogger(){
 		try {
 			log += "Logger started.";

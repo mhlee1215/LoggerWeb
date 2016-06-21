@@ -51,7 +51,7 @@ public class SerialComm implements SerialPortEventListener {
 
 	//private static int curPortIdx = 0;
 	
-	public void initialize(){
+	public boolean initialize(){
 		System.setProperty( "java.library.path", "/usr/lib/jni" );
 
 		Field fieldSysPath;
@@ -65,13 +65,13 @@ public class SerialComm implements SerialPortEventListener {
 		} 
 		
 		
-		initialize(0);
+		return initialize(0);
 	}
 	
-	public void initialize(int curPortIndex) {
+	public boolean initialize(int curPortIndex) {
 		if(curPortIndex > 10){
 			System.out.println("Totally Could not find COM port.");
-			return;
+			return false;
 		}
                 // the next line is for Raspberry Pi and 
                 // gets us into the while loop and was suggested here was suggested http://www.raspberrypi.org/phpBB3/viewtopic.php?f=81&t=32186
@@ -98,8 +98,7 @@ public class SerialComm implements SerialPortEventListener {
 		}
 		if (portId == null) {
 			//System.out.println("Could not find COM port.");
-			initialize(curPortIndex+1);
-			return;
+			return initialize(curPortIndex+1);
 		}
 
 		try {
@@ -143,6 +142,8 @@ public class SerialComm implements SerialPortEventListener {
 		
 		EMO_out = "";
 		log = "";	
+		
+		return true;
 	}
 	
 	public void flush(){

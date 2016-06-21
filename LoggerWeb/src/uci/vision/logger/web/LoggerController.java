@@ -46,12 +46,22 @@ public class LoggerController {
 		return model;
     }
 	
+	@RequestMapping("/instruction.do")
+    public ModelAndView instruction(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		ModelAndView model = new ModelAndView("instruction");				
+		return model;
+    }
+	
 	@RequestMapping("/init.do")
     public @ResponseBody String init(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		System.out.println("INITIALIZE!");
-		serial.initialize();
+		boolean serialInitResult = serial.initialize();
 		depthLogger = new LoggerProcess();
-		return "Success";
+		
+		if(serialInitResult)
+			return "Success";
+		else
+			return "fail";
     }
 	
 	@RequestMapping("/logger.do")

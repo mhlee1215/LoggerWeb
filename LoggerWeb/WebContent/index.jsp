@@ -28,16 +28,6 @@ $(document).ready(function(){
 	var port = '<%=request.getAttribute("apachePort")%>';
 	myUrl = myUrl + ':'+port;
 	
-	setInterval(function(){
-		//alert('hi');
-	    $("#imageDepth").attr("src", "http://"+myUrl+"/Logger/depth.jpg?"+new Date().getTime());
-	},500);
-	
-	setInterval(function(){
-	    $("#imageRgb").attr("src", "http://"+myUrl+"/Logger/rgb.jpg?"+new Date().getTime());
-	},500);
-	
-	
 	
 	$("#init").button({
 		icons: {
@@ -79,34 +69,48 @@ $(document).ready(function(){
 		icons: {
 	        primary: "ui-icon-arrowthick-1-n"
 	      }
-	}).on("click", function(event){
-		//alert('go UP');
-		move(2, 1);
+	}).on("mousedown", function(event){
+		moveInterval = setInterval(function(){
+			move(2, -1);
+		},200);
+	}).on("mouseup", function(event){
+		clearInterval(moveInterval);
 	})
 	
 	$("#moveDown").button({
 		icons: {
 			primary: "ui-icon-arrowthick-1-s"
 	      }
-	}).on("click", function(event){
-		move(2, -1);
+	}).on("mousedown", function(event){
+		moveInterval = setInterval(function(){
+			move(2, 1);
+		},200);
+	}).on("mouseup", function(event){
+		clearInterval(moveInterval);
 	})
 	
 	$("#moveLeft").button({
 		icons: {
 			primary: "ui-icon-arrowthick-1-w"
 	      }
-	}).on("click", function(event){
-		//alert('go UP');
-		move(1, 1);
+	}).on("mousedown", function(event){
+		moveInterval = setInterval(function(){
+			move(1, -1);
+		},200);
+	}).on("mouseup", function(event){
+		clearInterval(moveInterval);
 	})
 	
 	$("#moveRight").button({
 		icons: {
 			primary: "ui-icon-arrowthick-1-e"
 	      }
-	}).on("click", function(event){
-		move(1, -1);
+	}).on("mousedown", function(event){
+		moveInterval = setInterval(function(){
+			move(1, 1);
+		},200);
+	}).on("mouseup", function(event){
+		clearInterval(moveInterval);
 	})
 	
 	$("#loggerStart").button({
@@ -132,9 +136,20 @@ $(document).ready(function(){
 			loggerFlushInterval = setInterval(function(){
 				loggerFlush();
 			},500);	
+			
+			depthImageInterval = setInterval(function(){
+				//alert('hi');
+			    $("#imageDepth").attr("src", "http://"+myUrl+"/Logger/depth.jpg?"+new Date().getTime());
+			},500);
+			
+			rgbImageInterval = setInterval(function(){
+			    $("#imageRgb").attr("src", "http://"+myUrl+"/Logger/rgb.jpg?"+new Date().getTime());
+			},500);
 		}
 		else{
 			clearInterval(loggerFlushInterval);
+			clearInterval(depthImageInterval);
+			clearInterval(rgbImageInterval);
 		}
 		
 		$.ajax({
@@ -231,6 +246,7 @@ $(document).ready(function(){
 
 <div id="wrapper">
 	Home: <%=System.getProperty("user.home")%><br>
+	<a href="instruction.do">Install Instruction</a><br>
 	<button id="init">Init</button><button id="flush">flush</button><button id="zeroPos1">zero Pos 1</button><button id="zeroPos2">zero Pos 2</button><br>
 	<button id="moveUp">up</button>
 	<button id="moveDown">down</button><br>
