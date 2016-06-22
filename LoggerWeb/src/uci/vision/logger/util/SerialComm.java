@@ -51,6 +51,12 @@ public class SerialComm implements SerialPortEventListener {
 
 	//private static int curPortIdx = 0;
 	
+	private int moveStep = 500;
+	private int pulse1 = 200;
+	private int pulse2 = 200;
+	
+	private boolean isInitialized = false;
+	
 	public boolean initialize(){
 		System.setProperty( "java.library.path", "/usr/lib/jni" );
 
@@ -143,9 +149,19 @@ public class SerialComm implements SerialPortEventListener {
 		EMO_out = "";
 		log = "";	
 		
+		setPulse(1, pulse1);
+		setPulse(2, pulse2);
+		
+		isInitialized = true;
 		return true;
 	}
 	
+	
+	
+	public boolean isInitialized() {
+		return isInitialized;
+	}
+
 	public void flush(){
 		serialWriter("hi");
 	}
@@ -161,8 +177,30 @@ public class SerialComm implements SerialPortEventListener {
 		}
 	}
 	
+	public int getMotorStep(){
+		return moveStep;
+	}
+	
 	public void setZeropos(int motor){
 		serialWriter("zm "+motor);
+	}
+	
+	public void setPulse(int motor, int pulse){
+		
+		if(motor == 1){
+			pulse1 = pulse;
+			serialWriter("pr "+motor+" "+pulse);
+		}else if(motor == 2){
+			pulse2 = pulse;
+			serialWriter("pr "+motor+" "+pulse);
+		}
+		
+	}
+	
+	public int getPulse(int motor){
+		if(motor == 1) return pulse1;
+		else if(motor == 2) return pulse2;
+		else return -1;
 	}
 	
 	public int getCurPos(int motor){
@@ -193,45 +231,19 @@ public class SerialComm implements SerialPortEventListener {
 	
 	public void movie(int motor, int direction){
 		int curPos = getCurPos(motor);
-		serialWriter("mm "+motor+" "+(curPos+500*direction));
+		serialWriter("mm "+motor+" "+(curPos+moveStep*direction));
+	}
+	
+	public void setMoveStep(int step){
+		this.moveStep = step;
+	}
+	
+	public void stopAll(){
+		serialWriter("sa");
 	}
 	
 	
-	/** */
-//    public static class SerialWriter implements Runnable 
-//    {
-//    	Scanner scanner;
-//        OutputStream out;
-//        
-//        public SerialWriter ( OutputStream out )
-//        {
-//            this.out = out;
-//            scanner = new Scanner(System.in);
-//        }
-//        
-//        public void run ()
-//        {
-//            try
-//            {                
-//                //int c = 0;
-//                System.out.print("writer :");
-//                String str;
-//                while ( ( str = scanner.nextLine()) != null )
-//                {
-//                	str = str + "\r\n";
-//                	System.out.println(str);
-//                	//str = "hi\r\n";
-//                    this.out.write(str.getBytes());
-//                    System.out.print("writer :");
-//                }                
-//            }
-//            catch ( IOException e )
-//            {
-//                e.printStackTrace();
-//            }            
-//        }
-//    }
-	
+		
 	
 	/** */
     public static class SerialReader implements Runnable 

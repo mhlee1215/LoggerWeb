@@ -8,8 +8,12 @@
 </head>
 <body>
 
+<h3>Update Kernel (for odroid)</h3>
+sudo odroid-utility.sh<br>
+
 <h3>Install required libraries</h3>
-sudo apt-get install -y git-core cmake freeglut3-dev pkg-config build-essential libxmu-dev libxi-dev libusb-1.0-0-dev libopencv-dev libboost-all-dev librxtx-java apache2 freenect<br> 
+sudo apt-get update<br>
+sudo apt-get install -y git-core cmake freeglut3-dev pkg-config build-essential libxmu-dev libxi-dev libusb-1.0-0-dev libopencv-dev libboost-all-dev librxtx-java apache2 freenect openjdk-8-jdk<br> 
 
 <h3>Make LoggerHome</h3>
 cd ~<br>
@@ -29,21 +33,24 @@ ln -s ~/LoggerHome/Logger_libfreenect_custom/bin/freenect-cvdemo ~/LoggerHome/cv
 
 cd ~/LoggerHome<br>
 git clone https://github.com/mhlee1215/LoggerWeb.git<br>
-wget http://mirror.symnds.com/software/Apache/tomcat/tomcat-7/v7.0.69/bin/apache-tomcat-7.0.69.tar.gz<br>
-tar xvf apache-tomcat-7.0.69.zip<br>
-cp ~/LoggerHome/LoggerWeb/LoggerWeb/export/LoggerWeb.war ~/LoggerHome/apache-tomcat-7.0.69/webapps/ 
+(or) git clone git@github.com:mhlee1215/LoggerWeb.git<br>
+wget http://www.gtlib.gatech.edu/pub/apache/tomcat/tomcat-7/v7.0.70/bin/apache-tomcat-7.0.70.tar.gz<br>
+tar xvf apache-tomcat-7.0.70.tar.gz<br>
+cp ~/LoggerHome/LoggerWeb/LoggerWeb/export/LoggerWeb.war ~/LoggerHome/apache-tomcat-7.0.70/webapps/<br>
+~/LoggerHome/apache-tomcat-7.0.70/bin/startup.sh<br> 
 
 <h3>Install apache for image visualization</h3>
-sudo apt-get install apache2<br>
 cd /var/www/html (Ubuntu)<br>
 cd /var/www (Pi)<br>
-sudo ln -s ~/LoggerHome/capture Logger <br> 
+sudo ln -s ~/LoggerHome/capture /var/www/html/Logger <br> 
 <br>
-If port is blocked, then we need to add another port (say 81) by editing /etc/apache2/ports.conf, /etc/apache2/sites-enabled/000-default
+If port is blocked, then we need to add another port (say 81) by editing /etc/apache2/ports.conf, /etc/apache2/sites-enabled/000-default<br>
+sudo apache2ctl restart<br>
 <h3>References</h3>
-sudo odroid-utility.sh
+
 <ul>
 	<li><a href="https://openkinect.org/wiki/Getting_Started">https://openkinect.org/wiki/Getting_Started</a><br></li>
+	<li><a href="https://help.github.com/articles/adding-a-new-ssh-key-to-your-github-account/">https://help.github.com/articles/adding-a-new-ssh-key-to-your-github-account/</a></li>
 </ul>
 
 </body>

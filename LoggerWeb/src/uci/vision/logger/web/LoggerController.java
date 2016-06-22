@@ -31,6 +31,7 @@ public class LoggerController {
 	private static SerialComm serial = new SerialComm();
 	private static LoggerProcess depthLogger = new LoggerProcess();
 	
+	
 	public LoggerController(){
 		System.out.println("INITIALIZE!");
 		serial.initialize();
@@ -40,8 +41,19 @@ public class LoggerController {
     public ModelAndView index(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
 		int apachePort = ServletRequestUtils.getIntParameter(request, "apachePort", 80);
+		boolean isRGB2BGR = ServletRequestUtils.getBooleanParameter(request, "isRGB2BGR", depthLogger.getRGB2BGR());
+		boolean isUpsideDown = ServletRequestUtils.getBooleanParameter(request, "isUpsideDown", depthLogger.getUpsideDown());
+		depthLogger.setRGB2BGR(isRGB2BGR);
+		depthLogger.setUpsideDown(isUpsideDown);
+		
 		ModelAndView model = new ModelAndView("index");
 		model.addObject("apachePort", apachePort);
+		model.addObject("isRGB2BGR", depthLogger.getRGB2BGR());
+		model.addObject("isUpsideDown", depthLogger.getUpsideDown());
+		model.addObject("pulse1", serial.getPulse(1));
+		model.addObject("pulse2", serial.getPulse(2));
+		model.addObject("motorStep", serial.getMotorStep());
+		model.addObject("isInitialized", serial.isInitialized());
 				
 		return model;
     }
@@ -78,6 +90,20 @@ public class LoggerController {
 		return log;
     }
 	
+	@RequestMapping("/loggerSettings.do")
+    public @ResponseBody String loggerSettings(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		boolean isRGB2BGR = ServletRequestUtils.getBooleanParameter(request, "isRGB2BGR", depthLogger.getRGB2BGR());
+		boolean isUpsideDown = ServletRequestUtils.getBooleanParameter(request, "isUpsideDown", depthLogger.getUpsideDown());
+		depthLogger.setRGB2BGR(isRGB2BGR);
+		depthLogger.setUpsideDown(isUpsideDown);
+		
+		String log = depthLogger.getLog();
+		depthLogger.flushLog();
+		return log;
+    }
+
+	
+	
 	@RequestMapping("/loggerFlush.do")
     public @ResponseBody String loggerFlush(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		String log = depthLogger.getLog();
@@ -99,6 +125,29 @@ public class LoggerController {
 		return log;
     }
 	
+	@RequestMapping("/setPulse.do")
+    public @ResponseBody String setPulse(HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+		int motor = ServletRequestUtils.getIntParameter(request, "motor", 0);
+		int pulse = ServletRequestUtils.getIntParameter(request, "pulse", 0);
+		
+		serial.setPulse(motor, pulse);
+		String log = SerialComm.getLog();
+		SerialComm.flushLog();
+		return log;
+    }
+	
+	@RequestMapping("/setMotorStep.do")
+    public @ResponseBody String setMotorStep(HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+		int step = ServletRequestUtils.getIntParameter(request, "step", 0);
+		
+		serial.setMoveStep(step);
+		String log = SerialComm.getLog();
+		SerialComm.flushLog();
+		return log;
+    }
+	
 	@RequestMapping("/action.do")
     public @ResponseBody String action(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
@@ -106,6 +155,15 @@ public class LoggerController {
 		int direction = ServletRequestUtils.getIntParameter(request, "direction", 0);
 		
 		serial.movie(motor, direction);
+		String log = SerialComm.getLog();
+		SerialComm.flushLog();
+		return log;
+    }
+	
+	@RequestMapping("/stopMotorAll.do")
+    public @ResponseBody String stopMotorAll(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		
+		serial.stopAll();
 		String log = SerialComm.getLog();
 		SerialComm.flushLog();
 		return log;

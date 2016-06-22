@@ -20,18 +20,27 @@ public class LoggerProcess {
 	Thread outputReader;
 	static String log;
 	
+	int isRGB2BGR = 1;
+	int isUpsideDown = 1;
+	int isViewer = 0;
+	
+	
+	
 	public LoggerProcess(){
-		processBuilder = new ProcessBuilder(command, System.getProperty("user.home"));
+		init();
 		log = "";
 	}
 	
+	
 	public boolean init(){
-		processBuilder = new ProcessBuilder(command, System.getProperty("user.home"));
+		processBuilder = new ProcessBuilder(command, System.getProperty("user.home")+"/LoggerHome", isRGB2BGR+"", isUpsideDown+"");
+		log += "executed: "+command+" "+System.getProperty("user.home")+"/LoggerHome"+" "+isRGB2BGR+""+" "+isUpsideDown+""+"\n";
 		return true;
 	}
 	
 	public void startLogger(){
 		try {
+			init();
 			log += "Logger started.";
 			process = processBuilder.start();
 			
@@ -143,6 +152,50 @@ public class LoggerProcess {
 	        }          
 	        System.out.println("Reader terminated");
 	    }
+	}
+	
+	public void setRGB2BGR(boolean isRGB2BGR){
+		if(isRGB2BGR){
+			if(this.isRGB2BGR == 0){
+				this.isRGB2BGR = 1;
+				log += "RGB2BGR enabled.\n";
+			}
+		}
+		else{
+			if(this.isRGB2BGR == 1){
+				this.isRGB2BGR = 0;
+				log += "RGB2BGR disabled.\n";
+			}
+		}
+	}
+	
+	public void setUpsideDown(boolean isUpsideDown){
+		if(isUpsideDown){
+			if(this.isUpsideDown == 0){
+				this.isUpsideDown = 1;
+				log += "UpsideDown enabled.\n";
+			}
+		}
+		else{
+			if(this.isUpsideDown == 1){
+				this.isUpsideDown = 0;
+				log += "UpsideDown disabled.\n";
+			}
+		}
+	}
+	
+	public boolean getRGB2BGR(){
+		if(this.isRGB2BGR == 1)
+			return true;
+		else
+			return false;
+	}
+	
+	public boolean getUpsideDown(){
+		if(this.isUpsideDown == 1)
+			return true;
+		else
+			return false;
 	}
 	
 }
