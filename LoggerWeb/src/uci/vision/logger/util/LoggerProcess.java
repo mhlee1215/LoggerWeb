@@ -24,7 +24,7 @@ public class LoggerProcess {
 	int isUpsideDown = 1;
 	int isViewer = 0;
 	
-	
+	boolean isStarted = false;
 	
 	public LoggerProcess(){
 		init();
@@ -39,25 +39,29 @@ public class LoggerProcess {
 	}
 	
 	public void startLogger(){
-		try {
-			init();
-			log += "Logger started.";
-			process = processBuilder.start();
-			
-			BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
-			outputReader = (new Thread(new SerialReader(input)));
-			outputReader.start();
-			
-			
-			//System.out.println("KilleD!!!"+getPid(process));
-			//Runtime.getRuntime().exec("kill -2 "+getPid(process));
-			//process.destroyForcibly();
-			
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			log += getExceptionStackMessage(e);
+		if(!isStarted){
+			try {
+				init();
+				log += "Logger started.";
+				process = processBuilder.start();
+				
+				BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
+				outputReader = (new Thread(new SerialReader(input)));
+				outputReader.start();
+				
+				
+				//System.out.println("KilleD!!!"+getPid(process));
+				//Runtime.getRuntime().exec("kill -2 "+getPid(process));
+				//process.destroyForcibly();
+				
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				log += getExceptionStackMessage(e);
+			}
+			isStarted = true;
 		}
+		
 	}
 	
 	public static String getExceptionStackMessage(Exception e){
@@ -67,17 +71,21 @@ public class LoggerProcess {
 	}
 	
 	public void stopLogger(){
-		try {
-			log += "Logger stopped.";
-			if(process!=null){
-				Runtime.getRuntime().exec("kill -2 "+getPid(process));	
+		if(isStarted){
+			try {
+				log += "Logger stopped.";
+				if(process!=null){
+					Runtime.getRuntime().exec("kill -2 "+getPid(process));	
+				}
+				//outputReader.stop();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				log += getExceptionStackMessage(e);
 			}
-			//outputReader.stop();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			log += getExceptionStackMessage(e);
+			isStarted = false;
 		}
+		
 	}
 	
 	public static int getPid(Process process) {

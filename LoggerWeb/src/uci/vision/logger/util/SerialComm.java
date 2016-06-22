@@ -24,7 +24,12 @@ import java.lang.reflect.Field;
  */
 
 public class SerialComm implements SerialPortEventListener {
-	SerialPort serialPort;
+	
+	public static final int CONN_STATE_FAIL = 0;
+	public static final int CONN_STATE_SUCCESS = 1;
+	public static final int CONN_STATE_ALREADY_CONNECTED = 2;
+	
+	static SerialPort serialPort = null;
         /** The port we're normally going to use. */
 	private static final String PORT_NAMES[] = { 
 			"/dev/tty.usbserial-A9007UX1", // Mac OS X
@@ -52,12 +57,14 @@ public class SerialComm implements SerialPortEventListener {
 	//private static int curPortIdx = 0;
 	
 	private int moveStep = 500;
-	private int pulse1 = 200;
-	private int pulse2 = 200;
+	private int pulse1 = 5000;
+	private int pulse2 = 5000;
 	
 	private boolean isInitialized = false;
 	
-	public boolean initialize(){
+	static String connPortName = "";
+	
+	public int initialize(){
 		System.setProperty( "java.library.path", "/usr/lib/jni" );
 
 		Field fieldSysPath;
@@ -74,10 +81,14 @@ public class SerialComm implements SerialPortEventListener {
 		return initialize(0);
 	}
 	
-	public boolean initialize(int curPortIndex) {
+	public int initialize(int curPortIndex) {
+		if(serialPort!= null){
+			System.out.println("Already Initalized");
+			return CONN_STATE_ALREADY_CONNECTED;
+		}
 		if(curPortIndex > 10){
 			System.out.println("Totally Could not find COM port.");
-			return false;
+			return CONN_STATE_FAIL;
 		}
                 // the next line is for Raspberry Pi and 
                 // gets us into the while loop and was suggested here was suggested http://www.raspberrypi.org/phpBB3/viewtopic.php?f=81&t=32186
@@ -90,7 +101,7 @@ public class SerialComm implements SerialPortEventListener {
 		CommPortIdentifier portId = null;
 		Enumeration portEnum = CommPortIdentifier.getPortIdentifiers();
 		
-
+		
 		//First, Find an instance of serial port as set in PORT_NAMES.
 		while (portEnum.hasMoreElements()) {
 			CommPortIdentifier currPortId = (CommPortIdentifier) portEnum.nextElement();
@@ -106,6 +117,11 @@ public class SerialComm implements SerialPortEventListener {
 			//System.out.println("Could not find COM port.");
 			return initialize(curPortIndex+1);
 		}
+		
+		connPortName = portId.getName();
+		String[] nameParts = connPortName.split("/");
+		connPortName = nameParts[nameParts.length-1];
+		System.out.println("connPortName:"+connPortName);
 
 		try {
 			// open serial port, and use class name for the appName.
@@ -153,8 +169,57 @@ public class SerialComm implements SerialPortEventListener {
 		setPulse(2, pulse2);
 		
 		isInitialized = true;
-		return true;
+		
+		return CONN_STATE_SUCCESS;
 	}
+	
+	@Override
+	protected void finalize() throws Throwable {
+		// TODO Auto-generated method stub
+		super.finalize();
+		if(serialPort != null){
+			output.close();
+			input.close();
+			serialPort.close();
+		}
+	}
+	
+	public int reset(){
+		System.out.println("here?");
+		isInitialized = false;
+		if(serialPort != null){
+			serialPort.removeEventListener();
+			try {
+				System.out.println("stream close!");
+				output.close();
+				System.out.println("stream close!2");
+				System.out.println("stream close!3");
+				//input.close();
+				System.out.println("stream close!!!4");
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			System.out.println("conn closed!");
+			
+			serialPort.close();
+			
+			System.out.println("conn closed!??");
+		}
+//		ProcessBuilder processBuilder = new ProcessBuilder("rm /var/lock/LCK.."+connPortName);
+//		try {
+//			
+//			processBuilder.start();
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+		System.out.println("Do Initialize!");
+		return initialize();
+	}
+	
+	
 	
 	
 	
@@ -229,9 +294,13 @@ public class SerialComm implements SerialPortEventListener {
 		return EMOTIMO_POS_UNDEFINED;
 	}
 	
-	public void movie(int motor, int direction){
+	public void move(int motor, int direction){
 		int curPos = getCurPos(motor);
 		serialWriter("mm "+motor+" "+(curPos+moveStep*direction));
+	}
+	
+	public void moveTo(int motor, int pos){
+		serialWriter("mm "+motor+" "+(pos));
 	}
 	
 	public void setMoveStep(int step){

@@ -54,6 +54,9 @@ public class LoggerController {
 		model.addObject("pulse2", serial.getPulse(2));
 		model.addObject("motorStep", serial.getMotorStep());
 		model.addObject("isInitialized", serial.isInitialized());
+		model.addObject("motorPos1", serial.getCurPos(1));
+		model.addObject("motorPos2", serial.getCurPos(2));
+		
 				
 		return model;
     }
@@ -67,11 +70,11 @@ public class LoggerController {
 	@RequestMapping("/init.do")
     public @ResponseBody String init(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		System.out.println("INITIALIZE!");
-		boolean serialInitResult = serial.initialize();
+		int serialInitResult = serial.initialize();
 		depthLogger = new LoggerProcess();
 		
-		if(serialInitResult)
-			return "Success";
+		if(serialInitResult == SerialComm.CONN_STATE_SUCCESS || serialInitResult == SerialComm.CONN_STATE_ALREADY_CONNECTED)
+			return "success";
 		else
 			return "fail";
     }
@@ -153,11 +156,22 @@ public class LoggerController {
 
 		int motor = ServletRequestUtils.getIntParameter(request, "motor", 0);
 		int direction = ServletRequestUtils.getIntParameter(request, "direction", 0);
+		int pos = ServletRequestUtils.getIntParameter(request, "pos", 0);
 		
-		serial.movie(motor, direction);
+		if(direction != 0)
+			serial.move(motor, direction);
+		else if(pos != 0)
+			serial.moveTo(motor, pos);
+		
 		String log = SerialComm.getLog();
 		SerialComm.flushLog();
 		return log;
+    }
+	
+	@RequestMapping("/getMotorPos.do")
+    public @ResponseBody String getMotorPos(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		int motor = ServletRequestUtils.getIntParameter(request, "motor", 0);
+		return serial.getCurPos(motor)+"";
     }
 	
 	@RequestMapping("/stopMotorAll.do")

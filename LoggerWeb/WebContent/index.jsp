@@ -97,6 +97,7 @@ $(document).ready(function(){
 		      }
 	}).on("click", function(event){
 		//alert('go UP');
+		updateMotorPos(1, 0);
 		zeroPos(1);
 	})
 	
@@ -106,6 +107,7 @@ $(document).ready(function(){
 		      }
 	}).on("click", function(event){
 		//alert('go UP');
+		updateMotorPos(2, 0);
 		zeroPos(2);
 	})
 	
@@ -238,6 +240,15 @@ $(document).ready(function(){
 		  
 		  success: function( result ) {
 			  updateLog(result, "#emotimoLogArea");
+			  if(result == 'success'){
+				  isInitialized = true;
+			  }else{
+				  isInitialized = false;
+			  }
+			  
+			  if(isInitialized) initIcon = "ui-icon-check";
+			  else initIcon = "ui-icon-notice"; 
+			  createIndicatorWithIcon("is-serial-init-indicator", initIcon);
 		  }
 		});
 	}
@@ -274,6 +285,19 @@ $(document).ready(function(){
 		});
 	}
 	
+	function moveTo(motor, pos){
+		$.ajax({
+			  url: "action.do",
+			  data: {
+			    motor: motor,
+			    pos:pos
+			  },
+			  success: function( result ) {
+				  updateLog(result, "#emotimoLogArea");
+			  }
+			});
+	}
+	
 	function move(motor, direction){
 		$.ajax({
 		  url: "action.do",
@@ -283,6 +307,7 @@ $(document).ready(function(){
 		  },
 		  success: function( result ) {
 			  updateLog(result, "#emotimoLogArea");
+			  updateMotorPosFromServer(motor);
 		  }
 		});
 	}
@@ -362,11 +387,11 @@ $(document).ready(function(){
 	
 	$( "#motor-1-pulse-slider" ).slider({
 	      min: 100,
-	      max: 3000,
+	      max: 20000,
 	      value: <%=request.getAttribute("pulse1")%>,
 	      slide: function( event, ui ) {
 	        //$( "#amount" ).val( ui.value );
-	        $("#motor-1-pulse").val(ui.value);
+	        $("#motor-1-pulse-value").val(ui.value);
 	        setPulse(1, ui.value);
 	      }
 	});
@@ -375,10 +400,10 @@ $(document).ready(function(){
 	
 	$( "#motor-2-pulse-slider" ).slider({
 	      min: 100,
-	      max: 3000,
+	      max: 20000,
 	      value: <%=request.getAttribute("pulse2")%>,
 	      slide: function( event, ui ) {
-	    	  $("#motor-2-pulse").val(ui.value);
+	    	  $("#motor-2-pulse-value").val(ui.value);
 	    	  setPulse(2, ui.value);
 	        //$( "#amount" ).val( ui.value );
 	      }
@@ -386,15 +411,65 @@ $(document).ready(function(){
 	
 	$( "#motor-2-pulse-value").val(<%=request.getAttribute("pulse2")%>);
 	
-	$("#is-serial-init-indicator").button({
-		icons: {
-			primary: "ui-icon-notice"
-	      },
-	    text: false
-	});
+	
+	var isInitialized = <%=request.getAttribute("isInitialized")%>;
+	var initIcon = '';
+	if(isInitialized) initIcon = "ui-icon-check";
+	else initIcon = "ui-icon-notice";
+	
+	createIndicatorWithIcon("is-serial-init-indicator", initIcon);
+
+	
+	var motor1_pos = <%=request.getAttribute("motorPos1")%>;
+	var motor2_pos = <%=request.getAttribute("motorPos2")%>;
+	
+	$( "#motor-1-pos-slider" ).slider({
+      orientation: "horizontal",
+      min: -5000,
+      max: 5000,
+      value: motor1_pos,
+      animate: true,
+      slide: function( event, ui ) {
+    	  moveTo(1, ui.value);
+    	  updateMotorPos(1, ui.value);
+      }
+    });
+	
+	$( "#motor-2-pos-slider" ).slider({
+	      orientation: "vertical",
+	      min: -5000,
+	      max: 5000,
+	      value: motor2_pos,
+	      animate: true,
+	      slide: function( event, ui ) {
+	    	  moveTo(2, ui.value);
+	    	  updateMotorPos(2, ui.value);
+	      }
+	    });
 	
 	createButtonWithIcon("is-rgb2bgr-indicator", isRGB2BGR, toggleRGB2BGR, true);
 	createButtonWithIcon("is-upsidedown-indicator", isUpsideDown, toggleUpsideDown, true);
+	
+	function updateMotorPosFromServer(motor){
+		$.ajax({
+		  url: "getMotorPos.do",
+		  data: {
+			  motor:motor
+		  },
+		  success: function( result ) {
+			  updateMotorPos(motor, result);
+		  }
+		});
+	}
+	
+	function createIndicatorWithIcon(id, icon){
+		$("#"+id).button({
+			icons: {
+				primary: icon//"ui-icon-circle-check"
+		      },
+		    text: false
+		});
+	}
 	
 	function createButtonWithIcon(id, isEnabled, fun, recur){
 		if(isEnabled) icon = "ui-icon-circle-check";
@@ -413,6 +488,16 @@ $(document).ready(function(){
 			}
 			
 		});
+	}
+	
+	updateMotorPos(1, motor1_pos);
+	updateMotorPos(2, motor2_pos);
+	function updateMotorPos(motor, pos){
+		$("#motor-"+motor+"-pos-value").val(pos);
+		//$("#motor-"+motor+"-pos-slider").val(pos);
+		if(motor == 2) pos = -pos;
+		$("#motor-"+motor+"-pos-slider").slider('value',pos);
+		//alert(motor+' '+pos);
 	}
 })
 
@@ -440,7 +525,8 @@ $(document).ready(function(){
 		</tr>
 		<tr>
 			<td>
-				<label>Step: </label><input type="text" id="move-step-value" readonly style="border:0; color:#f6931f; font-weight:bold;" value="500"><div id="move-step-slider"></div>
+				<label>Step: </label><input type="text" id="move-step-value" readonly style="width:50px;border:0; color:#f6931f; font-weight:bold;" value="500">
+				<div id="move-step-slider"></div>
 			</td>
 			<td align="right">
 				<button id="moveStop">Stop</button>
@@ -448,6 +534,25 @@ $(document).ready(function(){
 				<button id="moveDown">down</button>
 				<button id="moveLeft">left</button>
 				<button id="moveRight">right</button>
+			</td>
+		</tr>
+		<tr>
+			<td align="center">
+				<label>V-Motor-pos: </label><input type="text" id="motor-2-pos-value" readonly style="width:50px;border:0; color:#f6931f; font-weight:bold;" value="0">
+			</td>
+			<td align="center">
+				<label>H-Motor-pos: </label><input type="text" id="motor-1-pos-value" readonly style="width:50px;border:0; color:#f6931f; font-weight:bold;" value="0">
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2" align="center">
+				
+				<div id="motor-1-pos-slider"></div>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2" align="center">
+				<div id="motor-2-pos-slider"></div>
 			</td>
 		</tr>
 		<tr>
