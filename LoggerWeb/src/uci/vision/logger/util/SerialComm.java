@@ -269,6 +269,7 @@ public class SerialComm implements SerialPortEventListener {
 	}
 	
 	public int getCurPos(int motor){
+		if(serialPort == null) return -99999;
 		serialWriter("mp "+motor);
 		int trial = 0;
 		int maxTrial = 20;
