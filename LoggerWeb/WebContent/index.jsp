@@ -205,6 +205,7 @@ $(document).ready(function(){
 			updateMotorLog();
 		},500);	
 		//updateLoggerInfo(true);
+		var movePlan = $( "#movePlan" ).val();
 		goPlannedRecordingInit(1, movePlan);
 		
 		
@@ -215,31 +216,47 @@ $(document).ready(function(){
 	//$("#emotimoLogArea").text("aa");
 	
 	function goPlannedRecordingInit(index, movePlan){
+		goPlannedRecording(1, movePlan);
+		/*
 		$.ajax({
 			url: "goToOrigin.do",
 		  	success: function( result ) {
-		  		logger(true);
+		  		//logger(true);
+		  		updateLoggerInfo(true);
 				var movePlan = $( "#movePlan" ).val();
 				goPlannedRecording(1, movePlan);
 		  }
 		});
+		*/
 	}
 	
 	function goPlannedRecording(index, movePlan){
 		$("#plannedRecord").button("disable");
+		$("#logInterval").attr('disabled', 'diabled');
+		$("#logTimes").attr('disabled', 'diabled');
+		$("#movePlan").attr('disabled', 'diabled');
+		updateLoggerInfo(true);
 		$.ajax({
 			url: "doPlannedLogging.do",
 		    data: {
 		    	movePlan:movePlan,
-		    	index: index,
+		    	index: index, 
+		    	logInterval:$("#logInterval").val(),
+		    	logTimes:$("#logTimes").val()
 		    },
+		    
+		    
 		  
 		  success: function( result ) {
 			  //updateLog(result, "#kinectLogArea");
 			  clearInterval(motorLoggerFlushInterval);
 			  //updateLoggerInfo(false);
-			  logger(false);
+			  updateLoggerInfo(false);
 			  $("#plannedRecord").button("enable");
+			  $("#logInterval").removeAttr('disabled', 'diabled');
+			  $("#logTimes").removeAttr('disabled', 'diabled');
+			  $("#movePlan").removeAttr('disabled', 'diabled');
+				
 		  }
 		});
 	}
@@ -250,6 +267,10 @@ $(document).ready(function(){
 	function logger(isStart){
 		if(isStart)
 			updateLoggerInfo(isStart);
+		
+		if(!isStart){
+			transferFinishedCallback();
+		}
 		
 		$.ajax({
 			url: "logger.do",
@@ -268,6 +289,10 @@ $(document).ready(function(){
 	
 	function updateLoggerInfo(isStart){
 		if(isStart){
+			motorLoggerFlushInterval = setInterval(function(){
+				updateMotorLog();
+			},500);
+			
 			loggerFlushInterval = setInterval(function(){
 				loggerFlush();
 			},500);	
@@ -285,9 +310,10 @@ $(document).ready(function(){
 		}
 		else{
 			//clearInterval(loggerFlushInterval);
-			transferFinishedCallback();
+			
 			clearInterval(depthImageInterval);
 			clearInterval(rgbImageInterval);
+			clearInterval(motorLoggerFlushInterval);
 			
 			//$("#loggerStart").button("enable");
 		}
@@ -317,6 +343,7 @@ $(document).ready(function(){
 	function loggerInit(){
 		$("#loggerStart").button("disable");
 		$("#loggerStop").button("disable");		
+		$("#loggerPanel").isLoading({ text: "Initializing..",position:   "overlay" });
 		$.ajax({
 			url: "initLogger.do",
 		   success: function( result ) {
@@ -324,10 +351,9 @@ $(document).ready(function(){
 			   $("#loggerStop").button("enable");
 			   updateLog(result, "#kinectLogArea");
 			   
-			   if(<%=request.getAttribute("isLoggerStarted")%> == true){
-					$("#loggerStart").button("disable");
-					updateLoggerInfo(true);
-			   }
+			   
+			   
+			   $("#loggerPanel").isLoading( "hide" );
 		  }
 		});
 	}
@@ -620,7 +646,6 @@ $(document).ready(function(){
 	}
 	
 	
-	loggerInit();
 
 	//$('#loggerStart').button("disable");
 	//$("#loggerStart").prop('disabled', false);
@@ -628,30 +653,7 @@ $(document).ready(function(){
 	
 	$( "#controlTabs" ).tabs();
 	$("#controlTabs" ).tabs({ active: 1 });
-	
-	
-	var myarr = [
-	             {
-	            	    id: 1,
-	            	    startValue: 480,
-	            	    endValue: 720,
-	            	    color: "#CF1920",
-	            	    startAt: "2015-03-22 00:00",
-	            	    endAt: "2015-03-22 23:59"
-	            	  }, {
-	            	    id: 2,
-	            	    startValue: 810,
-	            	    endValue: 950,
-	            	    startAt: "2015-03-22 00:00",
-	            	    endAt: "2015-03-22 23:59"
-	            	  }
-	            	];
-	
-	$('#v-motor-plan-slider').rangeSlider({
-		  min: 0,
-		  max: 1440,
-		  ranges: myarr
-		});
+		
 	
 	$("#logInterval").numeric();
 	$("#logTimes").numeric();
@@ -659,8 +661,30 @@ $(document).ready(function(){
 	
 	if(<%=request.getAttribute("isPlannedLogProgress")%> == true){
 		$("#plannedRecord").button("disable");
+		
+		$("#movePlan").attr('disabled', 'diabled');
+		$("#logInterval").attr('disabled', 'diabled');
+		$("#logTimes").attr('disabled', 'diabled');
+		var logTimes = <%=request.getAttribute("logTimes")%>;
+		var logCurTimes = <%=request.getAttribute("logCurTimes")%>+1;
+		$("#planned-reps-value").val(logCurTimes+"/"+logTimes);
+		$("#loggerStart").button("disable");
+		updateLoggerInfo(true);
 	}
 	
+
+	if(!<%=request.getAttribute("isLoggerInitialized")%>){
+		loggerInit();
+	}
+	
+	if(<%=request.getAttribute("isLoggerStarted")%> == true){
+		$("#loggerStart").button("disable");
+		updateLoggerInfo(true);
+   }
+	
+	
+	//$("#plannedRecord").text("");
+	//logCurTimes
 	//$("#loggerPanel").isLoading({ text: "Loading",position:   "overlay" });
 	//$("#loggerPanel").removeClass("alert-success");
 })
@@ -734,9 +758,10 @@ $(document).ready(function(){
 						<label for="tags">Move Plan: </label><input id="movePlan" style="width:300px;" value="<%=request.getAttribute("movePlan")%>"><br>
 						<button id="plannedRecord">Start Planned Record</button>
 						<label for="tags">Interval (min): </label>
-  						<input id="logInterval" style="width:50px;" value="<%=request.getAttribute("logInterval")%>">
+  						<input id="logInterval" style="width:30px;" value="<%=request.getAttribute("logInterval")%>">
   						<label for="tags">Times (0=infinite): </label>
-  						<input id="logTimes" style="width:50px;" value="<%=request.getAttribute("logTimes")%>">
+  						<input id="logTimes" style="width:30px;" value="<%=request.getAttribute("logTimes")%>">
+  						<label>Reps: </label><input type="text" id="planned-reps-value" readonly style="width:50px;border:0; color:#f6931f; font-weight:bold;" value="0">
 					</div>
 				</div>
 			</td>

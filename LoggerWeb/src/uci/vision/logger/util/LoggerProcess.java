@@ -27,11 +27,17 @@ public class LoggerProcess {
 	int isViewer = 0;
 	
 	boolean isStarted = false;
-	boolean isInitalized  = false;
-	boolean isTransferStarted = false;
+	boolean isInitialized  = false;
+	//boolean isTransferStarted = false;
 	
 	SimpleDateFormat time_formatter;
 	String current_time_str;
+	
+	public static int STATE_TRANSFER_INIT = 1;
+	public static int STATE_TRANSFER_SENDING = 2;
+	public static int STATE_TRANSFER_FINISHED = 3;
+	
+	public int transferState = STATE_TRANSFER_INIT;
 	
 	public LoggerProcess(){
 		time_formatter = new SimpleDateFormat("yyyy-MM-dd_HH_mm_ss");
@@ -85,7 +91,7 @@ public class LoggerProcess {
 				outputReader.start();
 				
 				if(isPreRunning){
-					isInitalized = true;
+					isInitialized = true;
 				}
 				
 				//System.out.println("KilleD!!!"+getPid(process));
@@ -144,7 +150,8 @@ public class LoggerProcess {
 			log += "Transfer started.";
 			process = processBuilder.start();
 			
-			isTransferStarted = true;
+			//isTransferStarted = true;
+			transferState = STATE_TRANSFER_SENDING;
 			
 			BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
 			outputReader = (new Thread(new FTPReader(input)));
@@ -152,9 +159,11 @@ public class LoggerProcess {
 			
 			System.out.println("AM I wait?");
 			process.waitFor();
+			//Thread.sleep(5000);
 			System.out.println("I AM WAIT!");
 			
-			isTransferStarted = false;
+			//isTransferStarted = false;
+			transferState = STATE_TRANSFER_FINISHED;
 									
 			//System.out.println("KilleD!!!"+getPid(process));
 			//Runtime.getRuntime().exec("kill -2 "+getPid(process));
@@ -185,7 +194,7 @@ public class LoggerProcess {
 	}
 	
 	public void waitUntilTransferFinished(){
-		while(isTransferStarted){
+		while(transferState != STATE_TRANSFER_FINISHED){
 			try {
 				Thread.sleep(500);
 			} catch (InterruptedException e) {
@@ -193,6 +202,7 @@ public class LoggerProcess {
 				e.printStackTrace();
 			}
 		}
+		transferState = STATE_TRANSFER_INIT;
 	}
 	
 	public static void main(String[] args){
@@ -282,7 +292,8 @@ public class LoggerProcess {
 	                log += line+"\n";
 	                if("end".equalsIgnoreCase(line)){
 	                	System.out.println("FTP, meets end string");
-	                	isTransferStarted = false; 
+	                	//isTransferStarted = false;
+	                	
 	                }
 	            }
 	        }
@@ -350,8 +361,8 @@ public class LoggerProcess {
 	}
 
 
-	public boolean isInitalized() {
-		return isInitalized;
+	public boolean isInitialized() {
+		return isInitialized;
 	}
 }
 

@@ -27,39 +27,39 @@ import uci.vision.logger.util.SerialComm;
 public class LoggerController {
 
 	private Logger logger = Logger.getLogger(getClass());
-	
+
 	private static SerialComm serial = new SerialComm();
 	private static LoggerProcess depthLogger = new LoggerProcess();
-	
+
 	public static final int LOG_INTERVAL_DEFAULT = 10;
 	public static final int LOG_TIMES_DEFAULT = 5;
 	public static final String MOVE_PLAN_DEFAULT = "2 5000, 1 -35000, 1 35000, 2 -3000, 1 -35000";
-	
+
 	private static int logInterval = LOG_INTERVAL_DEFAULT;
 	private static int logTimes = LOG_TIMES_DEFAULT;
 	private static int logCurTimes = 0;
 	private static boolean isPlannedLogProgress = false;
 	private static String movePlan = MOVE_PLAN_DEFAULT;
-//			serial.moveToAndWait(2, 10000);
-//	serial.moveToAndWait(1, -15000);
-//	serial.moveToAndWait(1, 15000);
-//	serial.moveToAndWait(2, -8000);
-//	serial.moveToAndWait(1, -15000);
-			
+	//			serial.moveToAndWait(2, 10000);
+	//	serial.moveToAndWait(1, -15000);
+	//	serial.moveToAndWait(1, 15000);
+	//	serial.moveToAndWait(2, -8000);
+	//	serial.moveToAndWait(1, -15000);
+
 	public LoggerController(){
 		System.out.println("INITIALIZE!");
 		serial.initialize();
 	}
-	
+
 	@RequestMapping("/index.do")
-    public ModelAndView index(HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public ModelAndView index(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
 		int apachePort = ServletRequestUtils.getIntParameter(request, "apachePort", 80);
 		boolean isRGB2BGR = ServletRequestUtils.getBooleanParameter(request, "isRGB2BGR", depthLogger.getRGB2BGR());
 		boolean isUpsideDown = ServletRequestUtils.getBooleanParameter(request, "isUpsideDown", depthLogger.getUpsideDown());
 		depthLogger.setRGB2BGR(isRGB2BGR);
 		depthLogger.setUpsideDown(isUpsideDown);
-		
+
 		ModelAndView model = new ModelAndView("index");
 		model.addObject("apachePort", apachePort);
 		model.addObject("isRGB2BGR", depthLogger.getRGB2BGR());
@@ -71,40 +71,42 @@ public class LoggerController {
 		model.addObject("motorPos1", serial.getCurPos(1));
 		model.addObject("motorPos2", serial.getCurPos(2));
 		model.addObject("isLoggerStarted", depthLogger.isStarted());
-		
+		model.addObject("isLoggerInitialized", depthLogger.isInitialized());
+
+
 		model.addObject("logInterval", logInterval);
 		model.addObject("logTimes", logTimes);
 		model.addObject("logCurTimes", logCurTimes);
 		model.addObject("isPlannedLogProgress", isPlannedLogProgress);
 		model.addObject("movePlan", movePlan);
-				
+
 		return model;
-    }
-	
+	}
+
 	@RequestMapping("/instruction.do")
-    public ModelAndView instruction(HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public ModelAndView instruction(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		ModelAndView model = new ModelAndView("instruction");				
 		return model;
-    }
-	
+	}
+
 	@RequestMapping("/init.do")
-    public @ResponseBody String init(HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public @ResponseBody String init(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		System.out.println("INITIALIZE!");
 		int serialInitResult = serial.initialize();
 		//depthLogger = new LoggerProcess();
-		
+
 		if(serialInitResult == SerialComm.CONN_STATE_SUCCESS || serialInitResult == SerialComm.CONN_STATE_ALREADY_CONNECTED)
 			return "success";
 		else
 			return "fail";
-    }
-	
+	}
+
 	@RequestMapping("/initLogger.do")
-    public @ResponseBody String initLogger(HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public @ResponseBody String initLogger(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
 		//depthLogger = new LoggerProcess();
-		if(!depthLogger.isInitalized()){
-			
+		if(!depthLogger.isInitialized()){
+
 			depthLogger.startLogger(true);		
 			Thread.sleep(5000);
 			depthLogger.stopLogger();
@@ -113,54 +115,80 @@ public class LoggerController {
 			Thread.sleep(5000);
 			depthLogger.stopLogger();
 		}
-		
+
 		String log = depthLogger.getLog();
 		depthLogger.flushLog();
 		return log;
-		
-    }
-	
+
+	}
+
 	@RequestMapping("/goToOrigin.do")
-    public @ResponseBody String goToOrigin(HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public @ResponseBody String goToOrigin(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		serial.moveToAndWait(1, 0);
 		serial.moveToAndWait(2, 0);
-		
+
 		String log = SerialComm.getLog();
 		SerialComm.flushLog();
 		return log;
-    }
-	
+	}
+
 	@RequestMapping("/doPlannedLogging.do")
-    public @ResponseBody String doPlannedLogging(HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public @ResponseBody String doPlannedLogging(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		logInterval = ServletRequestUtils.getIntParameter(request, "logInterval", LOG_INTERVAL_DEFAULT);
-		logTimes = ServletRequestUtils.getIntParameter(request, "logInterval", LOG_TIMES_DEFAULT);
+		logTimes = ServletRequestUtils.getIntParameter(request, "logTimes", LOG_TIMES_DEFAULT);
 		movePlan = ServletRequestUtils.getStringParameter(request, "movePlan", MOVE_PLAN_DEFAULT);
-		
+
 		isPlannedLogProgress = true;
-		
-		String[] parts = movePlan.split(",");
-		for(String mov : parts){
-			String[] subParts = mov.trim().split(" ");
-			if(subParts.length != 2){
-				System.err.println("Move format error");
-				break;
+
+		try{
+
+			for (int i = 0 ; i < logTimes ; i++){
+
+				String[] parts = movePlan.split(",");
+				for(int j = 0 ; j < parts.length ; j++){
+					String mov = parts[j];
+					String[] subParts = mov.trim().split(" ");
+					if(subParts.length != 2){
+						System.err.println("Move format error");
+						break;
+					}
+					int motorIndex = Integer.parseInt(subParts[0]);
+					int motorToPos = Integer.parseInt(subParts[1]);
+					serial.moveToAndWait(motorIndex, motorToPos);
+
+					if(j == 0){
+						boolean isPrerun = false;
+						depthLogger.startLogger(isPrerun);
+						Thread.sleep(2000);
+					}
+				}
+
+
+				System.out.println("Logger stop!");
+				depthLogger.stopLogger();
+				depthLogger.transferToServer();
+				
+				if( i < logTimes-1 )
+					Thread.sleep(1000*logInterval*60);
+				
+				logCurTimes++;
 			}
-			int motorIndex = Integer.parseInt(subParts[0]);
-			int motorToPos = Integer.parseInt(subParts[1]);
-			serial.moveToAndWait(motorIndex, motorToPos);
+
+		}catch(Exception e){
+			isPlannedLogProgress = false;
+			return e.toString();
 		}
-		
-		logCurTimes++;
+
 		isPlannedLogProgress = false;
 		String log = depthLogger.getLog();
 		depthLogger.flushLog();
 		return log;
-    }
-	
+	}
+
 	@RequestMapping("/logger.do")
-    public @ResponseBody String logger(HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public @ResponseBody String logger(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		boolean isStart = ServletRequestUtils.getBooleanParameter(request, "isStart", false);
-		
+
 		if(isStart){
 			System.out.println("Logger start!");
 			boolean isPrerun = false;
@@ -171,136 +199,136 @@ public class LoggerController {
 			depthLogger.stopLogger();
 			depthLogger.transferToServer();
 		}
-		
+
 		String log = depthLogger.getLog();
 		depthLogger.flushLog();
 		return log;
-    }
-	
+	}
+
 	@RequestMapping("/loggerWaitUntilTransfer.do")
-    public @ResponseBody String loggerWaitUntilTransfer(HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public @ResponseBody String loggerWaitUntilTransfer(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		//wait until transfer finished.
 		depthLogger.waitUntilTransferFinished();
-		
-		Thread.sleep(1000);
-		
+
+		//Thread.sleep(1000);
+
 		String log = depthLogger.getLog();
 		depthLogger.flushLog();
 		return log;
-    }
-	
-	
-	
+	}
+
+
+
 	@RequestMapping("/loggerSettings.do")
-    public @ResponseBody String loggerSettings(HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public @ResponseBody String loggerSettings(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		boolean isRGB2BGR = ServletRequestUtils.getBooleanParameter(request, "isRGB2BGR", depthLogger.getRGB2BGR());
 		boolean isUpsideDown = ServletRequestUtils.getBooleanParameter(request, "isUpsideDown", depthLogger.getUpsideDown());
 		depthLogger.setRGB2BGR(isRGB2BGR);
 		depthLogger.setUpsideDown(isUpsideDown);
-		
-		String log = depthLogger.getLog();
-		depthLogger.flushLog();
-		return log;
-    }
 
-	
-	
-	@RequestMapping("/loggerFlush.do")
-    public @ResponseBody String loggerFlush(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		String log = depthLogger.getLog();
 		depthLogger.flushLog();
 		return log;
-    }
-	
+	}
+
+
+
+	@RequestMapping("/loggerFlush.do")
+	public @ResponseBody String loggerFlush(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		String log = depthLogger.getLog();
+		depthLogger.flushLog();
+		return log;
+	}
+
 	@RequestMapping("/eMotimoflush.do")
-    public @ResponseBody String eMotimoflush(HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public @ResponseBody String eMotimoflush(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		String log = SerialComm.getLog();
 		SerialComm.flushLog();
 		return log;
-    }
-	
-	
+	}
+
+
 	@RequestMapping("/flush.do")
-    public @ResponseBody String flush(HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public @ResponseBody String flush(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
 		int motor = ServletRequestUtils.getIntParameter(request, "motor", 0);
 		int direction = ServletRequestUtils.getIntParameter(request, "direction", 0);
-		
+
 		serial.flush();
 		serial.getCurPos(1);
 		serial.getCurPos(2);
 		String log = SerialComm.getLog();
 		SerialComm.flushLog();
 		return log;
-    }
-	
+	}
+
 	@RequestMapping("/setPulse.do")
-    public @ResponseBody String setPulse(HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public @ResponseBody String setPulse(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
 		int motor = ServletRequestUtils.getIntParameter(request, "motor", 0);
 		int pulse = ServletRequestUtils.getIntParameter(request, "pulse", 0);
-		
+
 		serial.setPulse(motor, pulse);
 		String log = SerialComm.getLog();
 		SerialComm.flushLog();
 		return log;
-    }
-	
+	}
+
 	@RequestMapping("/setMotorStep.do")
-    public @ResponseBody String setMotorStep(HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public @ResponseBody String setMotorStep(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
 		int step = ServletRequestUtils.getIntParameter(request, "step", 0);
-		
+
 		serial.setMoveStep(step);
 		String log = SerialComm.getLog();
 		SerialComm.flushLog();
 		return log;
-    }
-	
+	}
+
 	@RequestMapping("/action.do")
-    public @ResponseBody String action(HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public @ResponseBody String action(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
 		int motor = ServletRequestUtils.getIntParameter(request, "motor", 0);
 		int direction = ServletRequestUtils.getIntParameter(request, "direction", 0);
 		int pos = ServletRequestUtils.getIntParameter(request, "pos", 0);
-		
+
 		if(direction != 0)
 			serial.move(motor, direction);
 		else if(pos != 0)
 			serial.moveTo(motor, pos);
-		
+
 		String log = SerialComm.getLog();
 		SerialComm.flushLog();
 		return log;
-    }
-	
+	}
+
 	@RequestMapping("/getMotorPos.do")
-    public @ResponseBody String getMotorPos(HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public @ResponseBody String getMotorPos(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		int motor = ServletRequestUtils.getIntParameter(request, "motor", 0);
 		return serial.getCurPos(motor)+"";
-    }
-	
+	}
+
 	@RequestMapping("/stopMotorAll.do")
-    public @ResponseBody String stopMotorAll(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		
+	public @ResponseBody String stopMotorAll(HttpServletRequest request, HttpServletResponse response) throws Exception {
+
 		serial.stopAll();
 		String log = SerialComm.getLog();
 		SerialComm.flushLog();
 		return log;
-    }
-	
+	}
+
 	@RequestMapping("/zeroPos.do")
-    public @ResponseBody String zeroPos(HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public @ResponseBody String zeroPos(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
 		int motor = ServletRequestUtils.getIntParameter(request, "motor", 0);
-				
+
 		serial.setZeropos(motor);
 		String log = SerialComm.getLog();
 		SerialComm.flushLog();
 		return log;
-    }
-	
-	
-	
-	
+	}
+
+
+
+
 }
