@@ -10,3 +10,4 @@ cd $DST_PATH
 put $FILE
 bye
 EOF
+echo 'end'

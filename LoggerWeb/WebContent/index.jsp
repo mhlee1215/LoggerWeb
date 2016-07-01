@@ -3,7 +3,12 @@
 <head>
 	<script src="js/jquery-3.0.0.min.js"></script>
 	<script src="js/jquery-ui.min.js"></script>
+	<script src="js/jquery.numeric.min.js"></script>
+	<script src="js/jquery.isloading.min.js"></script>
 	<link href="css/jquery-ui.css" rel="stylesheet">
+	<link href="css/jquery.isloading.css" rel="stylesheet">
+	
+	<link href="http://netdna.bootstrapcdn.com/font-awesome/3.0.2/css/font-awesome.css" rel="stylesheet">	
 	
 <style>
 * {
@@ -61,6 +66,7 @@ select {
 	width: 200px;
 }
 	
+.ui-widget{font-size:12px;}
 
 </style>
 </head>
@@ -189,9 +195,78 @@ $(document).ready(function(){
 		logger(false);
 	})
 	
+	$("#plannedRecord").button({
+		icons: {
+			primary: "ui-icon-arrowthick-1-e"
+	      }
+		
+	}).on("click", function(event){
+		motorLoggerFlushInterval = setInterval(function(){
+			updateMotorLog();
+		},500);	
+		//updateLoggerInfo(true);
+		goPlannedRecordingInit(1, movePlan);
+		
+		
+		
+	})
+	
+	
 	//$("#emotimoLogArea").text("aa");
 	
+	function goPlannedRecordingInit(index, movePlan){
+		$.ajax({
+			url: "goToOrigin.do",
+		  	success: function( result ) {
+		  		logger(true);
+				var movePlan = $( "#movePlan" ).val();
+				goPlannedRecording(1, movePlan);
+		  }
+		});
+	}
+	
+	function goPlannedRecording(index, movePlan){
+		$("#plannedRecord").button("disable");
+		$.ajax({
+			url: "doPlannedLogging.do",
+		    data: {
+		    	movePlan:movePlan,
+		    	index: index,
+		    },
+		  
+		  success: function( result ) {
+			  //updateLog(result, "#kinectLogArea");
+			  clearInterval(motorLoggerFlushInterval);
+			  //updateLoggerInfo(false);
+			  logger(false);
+			  $("#plannedRecord").button("enable");
+		  }
+		});
+	}
+	
+	
+	
+	
 	function logger(isStart){
+		if(isStart)
+			updateLoggerInfo(isStart);
+		
+		$.ajax({
+			url: "logger.do",
+		    data: {
+      		    isStart: isStart,
+		    },
+		  
+		  success: function( result ) {
+			  updateLog(result, "#kinectLogArea");
+			  
+			  if(!isStart)
+					updateLoggerInfo(isStart);
+		  }
+		});
+	}
+	
+	function updateLoggerInfo(isStart){
 		if(isStart){
 			loggerFlushInterval = setInterval(function(){
 				loggerFlush();
@@ -205,24 +280,39 @@ $(document).ready(function(){
 			rgbImageInterval = setInterval(function(){
 			    $("#imageRgb").attr("src", "http://"+myUrl+"/Logger/rgb.jpg?"+new Date().getTime());
 			},500);
+			
+			$("#loggerStart").button("disable");
 		}
 		else{
-			clearInterval(loggerFlushInterval);
+			//clearInterval(loggerFlushInterval);
+			transferFinishedCallback();
 			clearInterval(depthImageInterval);
 			clearInterval(rgbImageInterval);
+			
+			//$("#loggerStart").button("enable");
 		}
-		
+	}
+	
+	function transferFinishedCallback(){
+		$("#loggerPanel").isLoading({ text: "Transfering..",position:   "overlay" });
+		//$("#loggerPanel").removeClass("alert-success");
 		$.ajax({
-			url: "logger.do",
-		    data: {
-      		    isStart: isStart,
-		    },
+			url: "loggerWaitUntilTransfer.do",
 		  
-		  success: function( result ) {
-			  updateLog(result, "#kinectLogArea");
+		   success: function( result ) {
+			   //refreshing log info stopped.
+			   //updateLoggerInfo(false);
+			   updateLog(result, "#kinectLogArea");
+			   $("#loggerStart").button("enable");
+			   clearInterval(loggerFlushInterval);
+			   
+			   $("#loggerPanel").isLoading( "hide" );
+			   //$("#loggerPanel").addClass("alert-success");
 		  }
 		});
 	}
+	
+	
 	
 	function loggerInit(){
 		$("#loggerStart").button("disable");
@@ -233,6 +323,11 @@ $(document).ready(function(){
 			   $("#loggerStart").button("enable");
 			   $("#loggerStop").button("enable");
 			   updateLog(result, "#kinectLogArea");
+			   
+			   if(<%=request.getAttribute("isLoggerStarted")%> == true){
+					$("#loggerStart").button("disable");
+					updateLoggerInfo(true);
+			   }
 		  }
 		});
 	}
@@ -465,6 +560,15 @@ $(document).ready(function(){
 	createButtonWithIcon("is-rgb2bgr-indicator", isRGB2BGR, toggleRGB2BGR, true);
 	createButtonWithIcon("is-upsidedown-indicator", isUpsideDown, toggleUpsideDown, true);
 	
+	function updateMotorLog(){
+		$.ajax({
+		  url: "eMotimoflush.do",
+		  success: function( result ) {
+			  updateLog(result, "#emotimoLogArea");
+		  }
+		});
+	}
+	
 	function updateMotorPosFromServer(motor){
 		$.ajax({
 		  url: "getMotorPos.do",
@@ -521,6 +625,44 @@ $(document).ready(function(){
 	//$('#loggerStart').button("disable");
 	//$("#loggerStart").prop('disabled', false);
 	//   $("#loggerStop").prop('disabled', false);
+	
+	$( "#controlTabs" ).tabs();
+	$("#controlTabs" ).tabs({ active: 1 });
+	
+	
+	var myarr = [
+	             {
+	            	    id: 1,
+	            	    startValue: 480,
+	            	    endValue: 720,
+	            	    color: "#CF1920",
+	            	    startAt: "2015-03-22 00:00",
+	            	    endAt: "2015-03-22 23:59"
+	            	  }, {
+	            	    id: 2,
+	            	    startValue: 810,
+	            	    endValue: 950,
+	            	    startAt: "2015-03-22 00:00",
+	            	    endAt: "2015-03-22 23:59"
+	            	  }
+	            	];
+	
+	$('#v-motor-plan-slider').rangeSlider({
+		  min: 0,
+		  max: 1440,
+		  ranges: myarr
+		});
+	
+	$("#logInterval").numeric();
+	$("#logTimes").numeric();
+	
+	
+	if(<%=request.getAttribute("isPlannedLogProgress")%> == true){
+		$("#plannedRecord").button("disable");
+	}
+	
+	//$("#loggerPanel").isLoading({ text: "Loading",position:   "overlay" });
+	//$("#loggerPanel").removeClass("alert-success");
 })
 
 </script>
@@ -546,19 +688,6 @@ $(document).ready(function(){
 			</td>
 		</tr>
 		<tr>
-			<td>
-				<label>Step: </label><input type="text" id="move-step-value" readonly style="width:50px;border:0; color:#f6931f; font-weight:bold;" value="500">
-				<div id="move-step-slider"></div>
-			</td>
-			<td align="right">
-				<button id="moveStop">Stop</button>
-				<button id="moveUp">up</button>
-				<button id="moveDown">down</button>
-				<button id="moveLeft">left</button>
-				<button id="moveRight">right</button>
-			</td>
-		</tr>
-		<tr>
 			<td align="center">
 				<label>V-Motor-pos: </label><input type="text" id="motor-2-pos-value" readonly style="width:50px;border:0; color:#f6931f; font-weight:bold;" value="0">
 			</td>
@@ -567,48 +696,95 @@ $(document).ready(function(){
 			</td>
 		</tr>
 		<tr>
-			<td colspan="2" align="center">
-				
-				<div id="motor-1-pos-slider"></div>
+			<td colspan="2">
+				<div id="controlTabs">
+					<ul>
+					    <li><a href="#controlTabs-1">Manual</a></li>
+					    <li><a href="#controlTabs-2">Planned</a></li>
+					</ul>
+					<div id="controlTabs-1">
+						<table>
+							<tr>
+								<td>
+									<label>Step: </label><input type="text" id="move-step-value" readonly style="width:250px;border:0; color:#f6931f; font-weight:bold;" value="500">
+									<div id="move-step-slider"></div>
+								</td>
+								<td align="right">
+									<button id="moveStop">Stop</button>
+									<button id="moveUp">up</button>
+									<button id="moveDown">down</button>
+									<button id="moveLeft">left</button>
+									<button id="moveRight">right</button>
+								</td>
+							</tr>
+							<tr>
+								<td colspan="2" align="center">
+									
+									<div id="motor-1-pos-slider"></div>
+								</td>
+							</tr>
+							<tr>
+								<td colspan="2" align="center">
+									<div id="motor-2-pos-slider"></div>
+								</td>
+							</tr>
+						</table>
+					</div>
+					<div id="controlTabs-2">
+						<label for="tags">Move Plan: </label><input id="movePlan" style="width:300px;" value="<%=request.getAttribute("movePlan")%>"><br>
+						<button id="plannedRecord">Start Planned Record</button>
+						<label for="tags">Interval (min): </label>
+  						<input id="logInterval" style="width:50px;" value="<%=request.getAttribute("logInterval")%>">
+  						<label for="tags">Times (0=infinite): </label>
+  						<input id="logTimes" style="width:50px;" value="<%=request.getAttribute("logTimes")%>">
+					</div>
+				</div>
 			</td>
 		</tr>
-		<tr>
-			<td colspan="2" align="center">
-				<div id="motor-2-pos-slider"></div>
-			</td>
-		</tr>
-		<tr>
-			<td>
-			<label>RGB2BGR: </label><button id="is-rgb2bgr-indicator">1</button>
-	
-			<label>UpsideDown: </label><button id="is-upsidedown-indicator">1</button>
-			</td>
-			<td>
-			<button id="loggerStart">LoggerStart</button><button id="loggerStop">LoggerStop</button>
-			</td>
-		</tr>
-
 		
 		<tr>
-			<td>
-				<label>Pulse1: </label><input type="text" id="motor-1-pulse-value" readonly style="border:0; color:#f6931f; font-weight:bold;" value="500"><div id="motor-1-pulse-slider"></div>
-			</td>
-			<td>
-				<label>Pulse2: </label><input type="text" id="motor-2-pulse-value" readonly style="border:0; color:#f6931f; font-weight:bold;" value="500"><div id="motor-2-pulse-slider"></div>
+			<td colspan="2">
+				<div id="loggerPanel">
+					<table>
+						<tr>
+							<td>
+							<label>RGB2BGR: </label><button id="is-rgb2bgr-indicator">1</button>
+					
+							<label>UpsideDown: </label><button id="is-upsidedown-indicator">1</button>
+							</td>
+							<td>
+							
+							<button id="loggerStart">LoggerStart</button><button id="loggerStop">LoggerStop</button>
+							
+							</td>
+						</tr>
+						
+						<tr>
+							<td>
+								<label>Pulse1: </label><input type="text" id="motor-1-pulse-value" readonly style="border:0; color:#f6931f; font-weight:bold;" value="500"><div id="motor-1-pulse-slider"></div>
+							</td>
+							<td>
+								<label>Pulse2: </label><input type="text" id="motor-2-pulse-value" readonly style="border:0; color:#f6931f; font-weight:bold;" value="500"><div id="motor-2-pulse-slider"></div>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<p>Depth</p>
+							</td>
+							<td>
+								<p>RGB</p>
+							</td>
+						</tr>
+						<tr>
+							<td width="322"><img id="imageDepth" alt="" src="" width="320" height="240" border="1"></td>
+							<td width="322"><img id="imageRgb" alt="" src="" width="320" height="240" border="1"> <br></td>
+						</tr>
+					</table>
+				</div>	
 			</td>
 		</tr>
-		<tr>
-			<td>
-				<p>Depth</p>
-			</td>
-			<td>
-				<p>RGB</p>
-			</td>
-		</tr>
-		<tr>
-			<td width="322"><img id="imageDepth" alt="" src="" width="320" height="240" border="1"></td>
-			<td width="322"><img id="imageRgb" alt="" src="" width="320" height="240" border="1"> <br></td>
-		</tr>
+		
+		
 		<tr>
 			<td>
 				<p>Motor Log</p>

@@ -57,8 +57,8 @@ public class SerialComm implements SerialPortEventListener {
 	//private static int curPortIdx = 0;
 	
 	private int moveStep = 500;
-	private int pulse1 = 5000;
-	private int pulse2 = 5000;
+	private int pulse1 = 1000;
+	private int pulse2 = 1000;
 	
 	private boolean isInitialized = false;
 	
@@ -304,12 +304,29 @@ public class SerialComm implements SerialPortEventListener {
 		serialWriter("mm "+motor+" "+(pos));
 	}
 	
+	public void moveToAndWait(int motor, int pos){
+		System.out.println("Move to And Wait"+motor+", "+pos);
+		moveTo(motor, pos);
+		waitTillMotorArrived(motor, pos);
+	}
+	
 	public void setMoveStep(int step){
 		this.moveStep = step;
 	}
 	
 	public void stopAll(){
 		serialWriter("sa");
+	}
+	
+	public void waitTillMotorArrived(int motor, int pos){
+		while(getCurPos(motor) != pos){
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	

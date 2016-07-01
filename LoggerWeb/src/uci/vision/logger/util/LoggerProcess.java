@@ -7,12 +7,14 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Field;
+import java.text.SimpleDateFormat;
 
 public class LoggerProcess {
 	//String command = "~/cvLogger";
 	//String command = "~/Downloads/Logger_libfreenect_custom/bin/freenect-cvdemo";
 	//String[] command = {System.getProperty("user.home")+"/cvLogger "+System.getProperty("user.home")};
 	String command = System.getProperty("user.home")+"/LoggerHome/cvLogger";
+	String ftpCommand = System.getProperty("user.home")+"/LoggerHome/ftp.sh";
 	
 	ProcessBuilder processBuilder;
 	Process process;
@@ -26,10 +28,17 @@ public class LoggerProcess {
 	
 	boolean isStarted = false;
 	boolean isInitalized  = false;
+	boolean isTransferStarted = false;
+	
+	SimpleDateFormat time_formatter;
+	String current_time_str;
 	
 	public LoggerProcess(){
+		time_formatter = new SimpleDateFormat("yyyy-MM-dd_HH_mm_ss");
+		
 		init();
 		log = "";
+		
 	}
 	
 	
@@ -37,12 +46,24 @@ public class LoggerProcess {
 		return init(false);
 	}
 	public boolean init(boolean isPreRunning){
+		
+		log += "Previous preview file was deleted.";
+		processBuilder = new ProcessBuilder("rm", System.getProperty("user.home")+"/LoggerHome/capture/*.jpg");
+		try {
+			processBuilder.start().waitFor();
+		} catch (IOException | InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		if(isPreRunning){
 			processBuilder = new ProcessBuilder(command, System.getProperty("user.home")+"/LoggerHome", isRGB2BGR+"", isUpsideDown+"", "0", "0");
 			log += "executed: "+command+" "+System.getProperty("user.home")+"/LoggerHome"+" "+isRGB2BGR+""+" "+isUpsideDown+""+"0\n";	
 		}else{
-			processBuilder = new ProcessBuilder(command, System.getProperty("user.home")+"/LoggerHome", isRGB2BGR+"", isUpsideDown+"", "0", "1");
-			log += "executed: "+command+" "+System.getProperty("user.home")+"/LoggerHome"+" "+isRGB2BGR+""+" "+isUpsideDown+""+"1\n";
+			
+			current_time_str = time_formatter.format(System.currentTimeMillis());
+			processBuilder = new ProcessBuilder(command, System.getProperty("user.home")+"/LoggerHome", isRGB2BGR+"", isUpsideDown+"", "0", "1", current_time_str);
+			log += "executed: "+command+" "+System.getProperty("user.home")+"/LoggerHome"+" "+isRGB2BGR+""+" "+isUpsideDown+""+"1"+current_time_str+"\n";
 		}
 		return true;
 	}	
@@ -52,6 +73,7 @@ public class LoggerProcess {
 	}
 	
 	public void startLogger(boolean isPreRunning){
+		System.out.println("I am startLogger:"+isStarted);
 		if(!isStarted){
 			try {
 				init(isPreRunning);
@@ -59,7 +81,7 @@ public class LoggerProcess {
 				process = processBuilder.start();
 				
 				BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
-				outputReader = (new Thread(new SerialReader(input)));
+				outputReader = (new Thread(new DepthLoggerReader(input)));
 				outputReader.start();
 				
 				if(isPreRunning){
@@ -93,19 +115,59 @@ public class LoggerProcess {
 	public void stopLogger(boolean isPreRunning){
 		if(isStarted){
 			try {
+				isStarted = false;	
+				
 				log += "Logger stopped.";
 				if(process!=null){
 					Runtime.getRuntime().exec("kill -2 "+getPid(process));	
 				}
+				Thread.sleep(1000);
+				process.destroy();
+				outputReader.stop();
 				//outputReader.stop();
-			} catch (IOException e) {
+			} catch (IOException | InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 				log += getExceptionStackMessage(e);
 			}
-			isStarted = false;
+					
 		}
-		
+	}
+	
+	public void transferToServer(){
+		//If it is actual recording, transfer file to server automatically
+				
+		try {
+			//current_time_str = time_formatter.format(System.currentTimeMillis())+".klg";
+			processBuilder = new ProcessBuilder(ftpCommand, System.getProperty("user.home")+"/LoggerHome/capture/"+current_time_str+".klg");
+			log += "executed: "+ftpCommand+" "+System.getProperty("user.home")+"/LoggerHome/capture/"+current_time_str+".klg"+"\n";
+			log += "Transfer started.";
+			process = processBuilder.start();
+			
+			isTransferStarted = true;
+			
+			BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
+			outputReader = (new Thread(new FTPReader(input)));
+			outputReader.start();
+			
+			System.out.println("AM I wait?");
+			process.waitFor();
+			System.out.println("I AM WAIT!");
+			
+			isTransferStarted = false;
+									
+			//System.out.println("KilleD!!!"+getPid(process));
+			//Runtime.getRuntime().exec("kill -2 "+getPid(process));
+			//process.destroyForcibly();
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			log += getExceptionStackMessage(e);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	public static int getPid(Process process) {
@@ -122,21 +184,34 @@ public class LoggerProcess {
 	    }
 	}
 	
-	public static void main(String[] args){
-		LoggerProcess lp = new LoggerProcess();
-		lp.startLogger();
-		
-		
-		
-		try {
-			Thread.sleep(10000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			log += getExceptionStackMessage(e);
+	public void waitUntilTransferFinished(){
+		while(isTransferStarted){
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
+	}
+	
+	public static void main(String[] args){
 		
-		lp.stopLogger();
+		
+//		LoggerProcess lp = new LoggerProcess();
+//		lp.startLogger();
+//		
+//		
+//		
+//		try {
+//			Thread.sleep(10000);
+//		} catch (InterruptedException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//			log += getExceptionStackMessage(e);
+//		}
+//		
+//		lp.stopLogger();
 	}
 	
 	public String getLog(){
@@ -148,12 +223,12 @@ public class LoggerProcess {
 	}
 	
 	/** */
-	class SerialReader implements Runnable 
+	class DepthLoggerReader implements Runnable 
 	{
 		BufferedReader in;
 		boolean isStop = false;
 	    
-	    public SerialReader ( BufferedReader in )
+	    public DepthLoggerReader ( BufferedReader in )
 	    {
 	        this.in = in;
 	    }
@@ -179,6 +254,44 @@ public class LoggerProcess {
 	            log += getExceptionStackMessage(e);
 	        }          
 	        System.out.println("Reader terminated");
+	    }
+	}
+	
+	class FTPReader implements Runnable 
+	{
+		BufferedReader in;
+		boolean isStop = false;
+	    
+	    public FTPReader ( BufferedReader in )
+	    {
+	        this.in = in;
+	    }
+	    
+	    public void run ()
+	    {
+	    	System.out.println("FTP Reader started.");
+	        //byte[] buffer = new byte[1024];
+	        //int len = -1;
+	        String line;
+	        try
+	        {
+	        	System.out.println("wait..");
+	            while ( (line = in.readLine()) != null )
+	            {
+	                System.out.println(line);
+	                log += line+"\n";
+	                if("end".equalsIgnoreCase(line)){
+	                	System.out.println("FTP, meets end string");
+	                	isTransferStarted = false; 
+	                }
+	            }
+	        }
+	        catch ( IOException e )
+	        {
+	            e.printStackTrace();
+	            log += getExceptionStackMessage(e);
+	        }          
+	        System.out.println("FTP Reader terminated");
 	    }
 	}
 	

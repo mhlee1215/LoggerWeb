@@ -31,7 +31,21 @@ public class LoggerController {
 	private static SerialComm serial = new SerialComm();
 	private static LoggerProcess depthLogger = new LoggerProcess();
 	
+	public static final int LOG_INTERVAL_DEFAULT = 10;
+	public static final int LOG_TIMES_DEFAULT = 5;
+	public static final String MOVE_PLAN_DEFAULT = "2 5000, 1 -35000, 1 35000, 2 -3000, 1 -35000";
 	
+	private static int logInterval = LOG_INTERVAL_DEFAULT;
+	private static int logTimes = LOG_TIMES_DEFAULT;
+	private static int logCurTimes = 0;
+	private static boolean isPlannedLogProgress = false;
+	private static String movePlan = MOVE_PLAN_DEFAULT;
+//			serial.moveToAndWait(2, 10000);
+//	serial.moveToAndWait(1, -15000);
+//	serial.moveToAndWait(1, 15000);
+//	serial.moveToAndWait(2, -8000);
+//	serial.moveToAndWait(1, -15000);
+			
 	public LoggerController(){
 		System.out.println("INITIALIZE!");
 		serial.initialize();
@@ -58,6 +72,11 @@ public class LoggerController {
 		model.addObject("motorPos2", serial.getCurPos(2));
 		model.addObject("isLoggerStarted", depthLogger.isStarted());
 		
+		model.addObject("logInterval", logInterval);
+		model.addObject("logTimes", logTimes);
+		model.addObject("logCurTimes", logCurTimes);
+		model.addObject("isPlannedLogProgress", isPlannedLogProgress);
+		model.addObject("movePlan", movePlan);
 				
 		return model;
     }
@@ -101,19 +120,76 @@ public class LoggerController {
 		
     }
 	
+	@RequestMapping("/goToOrigin.do")
+    public @ResponseBody String goToOrigin(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		serial.moveToAndWait(1, 0);
+		serial.moveToAndWait(2, 0);
+		
+		String log = SerialComm.getLog();
+		SerialComm.flushLog();
+		return log;
+    }
+	
+	@RequestMapping("/doPlannedLogging.do")
+    public @ResponseBody String doPlannedLogging(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		logInterval = ServletRequestUtils.getIntParameter(request, "logInterval", LOG_INTERVAL_DEFAULT);
+		logTimes = ServletRequestUtils.getIntParameter(request, "logInterval", LOG_TIMES_DEFAULT);
+		movePlan = ServletRequestUtils.getStringParameter(request, "movePlan", MOVE_PLAN_DEFAULT);
+		
+		isPlannedLogProgress = true;
+		
+		String[] parts = movePlan.split(",");
+		for(String mov : parts){
+			String[] subParts = mov.trim().split(" ");
+			if(subParts.length != 2){
+				System.err.println("Move format error");
+				break;
+			}
+			int motorIndex = Integer.parseInt(subParts[0]);
+			int motorToPos = Integer.parseInt(subParts[1]);
+			serial.moveToAndWait(motorIndex, motorToPos);
+		}
+		
+		logCurTimes++;
+		isPlannedLogProgress = false;
+		String log = depthLogger.getLog();
+		depthLogger.flushLog();
+		return log;
+    }
+	
 	@RequestMapping("/logger.do")
     public @ResponseBody String logger(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		boolean isStart = ServletRequestUtils.getBooleanParameter(request, "isStart", false);
 		
-		if(isStart)
-			depthLogger.startLogger();
-		else
+		if(isStart){
+			System.out.println("Logger start!");
+			boolean isPrerun = false;
+			depthLogger.startLogger(isPrerun);
+		}
+		else{
+			System.out.println("Logger stop!");
 			depthLogger.stopLogger();
+			depthLogger.transferToServer();
+		}
 		
 		String log = depthLogger.getLog();
 		depthLogger.flushLog();
 		return log;
     }
+	
+	@RequestMapping("/loggerWaitUntilTransfer.do")
+    public @ResponseBody String loggerWaitUntilTransfer(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		//wait until transfer finished.
+		depthLogger.waitUntilTransferFinished();
+		
+		Thread.sleep(1000);
+		
+		String log = depthLogger.getLog();
+		depthLogger.flushLog();
+		return log;
+    }
+	
+	
 	
 	@RequestMapping("/loggerSettings.do")
     public @ResponseBody String loggerSettings(HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -135,6 +211,14 @@ public class LoggerController {
 		depthLogger.flushLog();
 		return log;
     }
+	
+	@RequestMapping("/eMotimoflush.do")
+    public @ResponseBody String eMotimoflush(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		String log = SerialComm.getLog();
+		SerialComm.flushLog();
+		return log;
+    }
+	
 	
 	@RequestMapping("/flush.do")
     public @ResponseBody String flush(HttpServletRequest request, HttpServletResponse response) throws Exception {

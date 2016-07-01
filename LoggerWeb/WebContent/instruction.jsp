@@ -38,6 +38,7 @@ wget http://www.gtlib.gatech.edu/pub/apache/tomcat/tomcat-7/v7.0.70/bin/apache-t
 tar xvf apache-tomcat-7.0.70.tar.gz<br>
 cp ~/LoggerHome/LoggerWeb/LoggerWeb/export/LoggerWeb.war ~/LoggerHome/apache-tomcat-7.0.70/webapps/<br>
 ~/LoggerHome/apache-tomcat-7.0.70/bin/startup.sh<br> 
+ln -s LoggerWeb/LoggerWeb/script/fileTransferParam.sh ftp.sh<br>
 
 <h3>Install apache for image visualization</h3>
 cd /var/www/html (Ubuntu)<br>
