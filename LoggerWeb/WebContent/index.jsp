@@ -242,7 +242,8 @@ $(document).ready(function(){
 		    	movePlan:movePlan,
 		    	index: index, 
 		    	logInterval:$("#logInterval").val(),
-		    	logTimes:$("#logTimes").val()
+		    	logTimes:$("#logTimes").val(),
+		    	logPrefix:$("#logPrefix").val(),
 		    },
 		    
 		    
@@ -754,13 +755,14 @@ $(document).ready(function(){
 						</table>
 					</div>
 					<div id="controlTabs-2">
+						<label for="tags">Log Prefix: </label><input id="logPrefix" style="width:100px;" value="<%=request.getAttribute("logPrefix")%>">
 						<label for="tags">Move Plan: </label><input id="movePlan" style="width:300px;" value="<%=request.getAttribute("movePlan")%>"><br>
-						<button id="plannedRecord">Start Planned Record</button>
 						<label for="tags">Interval (min): </label>
   						<input id="logInterval" style="width:30px;" value="<%=request.getAttribute("logInterval")%>">
   						<label for="tags">Times (0=infinite): </label>
   						<input id="logTimes" style="width:30px;" value="<%=request.getAttribute("logTimes")%>">
   						<label>Reps: </label><input type="text" id="planned-reps-value" readonly style="width:50px;border:0; color:#f6931f; font-weight:bold;" value="0">
+  						<button id="plannedRecord">Start Planned Record</button>
 					</div>
 				</div>
 			</td>

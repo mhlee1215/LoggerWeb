@@ -33,7 +33,7 @@ public class LoggerController {
 
 	public static final int LOG_INTERVAL_DEFAULT = 10;
 	public static final int LOG_TIMES_DEFAULT = 5;
-	public static final String MOVE_PLAN_DEFAULT = "2 5000, 1 -35000, 1 35000, 2 -3000, 1 -35000";
+	public static final String MOVE_PLAN_DEFAULT = "500, 500, 2 5000, 1 -35000, 1 35000, 2 -3000, 1 -35000";
 
 	private static int logInterval = LOG_INTERVAL_DEFAULT;
 	private static int logTimes = LOG_TIMES_DEFAULT;
@@ -79,6 +79,7 @@ public class LoggerController {
 		model.addObject("logCurTimes", logCurTimes);
 		model.addObject("isPlannedLogProgress", isPlannedLogProgress);
 		model.addObject("movePlan", movePlan);
+		model.addObject("logPrefix", depthLogger.getLogPrefix());
 
 		return model;
 	}
@@ -119,8 +120,21 @@ public class LoggerController {
 		String log = depthLogger.getLog();
 		depthLogger.flushLog();
 		return log;
-
 	}
+	
+	@RequestMapping("/setLogPrefix.do")
+	public @ResponseBody String setLogPrefix(HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+		//depthLogger = new LoggerProcess();
+		String logPrefix = ServletRequestUtils.getStringParameter(request, "logPrefix", LoggerProcess.LOG_PREFIX_DEFAULT);
+		depthLogger.setLogPrefix(logPrefix);
+		
+		String log = depthLogger.getLog();
+		depthLogger.flushLog();
+		return log;
+	}
+	
+	
 
 	@RequestMapping("/goToOrigin.do")
 	public @ResponseBody String goToOrigin(HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -137,6 +151,8 @@ public class LoggerController {
 		logInterval = ServletRequestUtils.getIntParameter(request, "logInterval", LOG_INTERVAL_DEFAULT);
 		logTimes = ServletRequestUtils.getIntParameter(request, "logTimes", LOG_TIMES_DEFAULT);
 		movePlan = ServletRequestUtils.getStringParameter(request, "movePlan", MOVE_PLAN_DEFAULT);
+		String logPrefix = ServletRequestUtils.getStringParameter(request, "logPrefix", LoggerProcess.LOG_PREFIX_DEFAULT);
+		depthLogger.setLogPrefix(logPrefix);
 
 		isPlannedLogProgress = true;
 
@@ -147,6 +163,13 @@ public class LoggerController {
 				String[] parts = movePlan.split(",");
 				for(int j = 0 ; j < parts.length ; j++){
 					String mov = parts[j];
+					
+					//First two is purse
+					if(j < 2){
+						int pulse = Integer.parseInt(mov);
+						serial.setPulse(j+1, pulse);
+					}
+					
 					String[] subParts = mov.trim().split(" ");
 					if(subParts.length != 2){
 						System.err.println("Move format error");
@@ -180,6 +203,11 @@ public class LoggerController {
 		}
 
 		isPlannedLogProgress = false;
+		
+		//Set to Origin
+		serial.moveToAndWait(1, 0);
+		serial.moveToAndWait(2, 0);
+		
 		String log = depthLogger.getLog();
 		depthLogger.flushLog();
 		return log;

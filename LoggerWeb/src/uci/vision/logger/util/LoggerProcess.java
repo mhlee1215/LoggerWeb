@@ -40,15 +40,27 @@ public class LoggerProcess {
 	
 	public int transferState = STATE_TRANSFER_INIT;
 	
+	public static String LOG_PREFIX_DEFAULT = "NONAME";
+	
+	String logPrefix = LOG_PREFIX_DEFAULT;
+	
 	public LoggerProcess(){
-		time_formatter = new SimpleDateFormat("yyyy-MM-dd_HH_mm_ss");
+		time_formatter = new SimpleDateFormat("yyyy-MM-dd_HH_mm");
 		
 		init();
 		log = "";
 		
+	}	
+	
+	public String getLogPrefix() {
+		return logPrefix;
 	}
-	
-	
+
+	public void setLogPrefix(String logPrefix) {
+		this.logPrefix = logPrefix;
+		log += "logPrefix was changed as :"+logPrefix;
+	}
+
 	public boolean init(){
 		return init(false);
 	}
@@ -69,6 +81,7 @@ public class LoggerProcess {
 		}else{
 			
 			current_time_str = time_formatter.format(System.currentTimeMillis());
+			current_time_str = logPrefix +"-"+ current_time_str;
 			processBuilder = new ProcessBuilder(command, System.getProperty("user.home")+"/LoggerHome", isRGB2BGR+"", isUpsideDown+"", isViewer+"", isRecording+"", current_time_str);
 			log += "executed: "+command+" "+System.getProperty("user.home")+"/LoggerHome"+" "+isRGB2BGR+""+" "+isUpsideDown+" "+isViewer+" "+isRecording+" "+current_time_str+"\n";
 		}
