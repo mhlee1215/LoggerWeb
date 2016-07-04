@@ -341,6 +341,7 @@ $(document).ready(function(){
 	
 	
 	function loggerInit(){
+		updateLoggerInfo(true);
 		$("#loggerStart").button("disable");
 		$("#loggerStop").button("disable");		
 		$("#loggerPanel").isLoading({ text: "Initializing..",position:   "overlay" });
@@ -350,10 +351,8 @@ $(document).ready(function(){
 			   $("#loggerStart").button("enable");
 			   $("#loggerStop").button("enable");
 			   updateLog(result, "#kinectLogArea");
-			   
-			   
-			   
 			   $("#loggerPanel").isLoading( "hide" );
+			   updateLoggerInfo(false);
 		  }
 		});
 	}
