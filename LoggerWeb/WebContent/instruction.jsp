@@ -36,8 +36,9 @@ git clone https://github.com/mhlee1215/LoggerWeb.git<br>
 (or) git clone git@github.com:mhlee1215/LoggerWeb.git<br>
 wget http://www.gtlib.gatech.edu/pub/apache/tomcat/tomcat-7/v7.0.70/bin/apache-tomcat-7.0.70.tar.gz<br>
 tar xvf apache-tomcat-7.0.70.tar.gz<br>
-cp ~/LoggerHome/LoggerWeb/LoggerWeb/export/LoggerWeb.war ~/LoggerHome/apache-tomcat-7.0.70/webapps/<br>
-~/LoggerHome/apache-tomcat-7.0.70/bin/startup.sh<br> 
+ln -s apache-tomcat-7.0.70 tomcat_home<br>
+cp ~/LoggerHome/LoggerWeb/LoggerWeb/export/LoggerWeb.war ~/LoggerHome/tomcat_home/webapps/<br>
+~/LoggerHome/tomcat_home/bin/startup.sh<br> 
 ln -s LoggerWeb/LoggerWeb/script/fileTransferParam.sh ftp.sh<br>
 
 <h3>Install apache for image visualization</h3>

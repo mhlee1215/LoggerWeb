@@ -168,6 +168,7 @@ public class LoggerController {
 					if(j < 2){
 						int pulse = Integer.parseInt(mov);
 						serial.setPulse(j+1, pulse);
+						continue;
 					}
 					
 					String[] subParts = mov.trim().split(" ");
