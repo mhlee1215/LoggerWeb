@@ -25,6 +25,7 @@ public class LoggerProcess {
 	int isRGB2BGR = 1;
 	int isUpsideDown = 1;
 	int isViewer = 0;
+	int isRecording = 1;
 	
 	boolean isStarted = false;
 	boolean isInitialized  = false;
@@ -53,7 +54,7 @@ public class LoggerProcess {
 	}
 	public boolean init(boolean isPreRunning){
 		
-		log += "Previous preview file was deleted.";
+		log += "Previous preview file was deleted.\n";
 		processBuilder = new ProcessBuilder("rm", System.getProperty("user.home")+"/LoggerHome/capture/*.jpg");
 		try {
 			processBuilder.start().waitFor();
@@ -68,8 +69,8 @@ public class LoggerProcess {
 		}else{
 			
 			current_time_str = time_formatter.format(System.currentTimeMillis());
-			processBuilder = new ProcessBuilder(command, System.getProperty("user.home")+"/LoggerHome", isRGB2BGR+"", isUpsideDown+"", "0", "1", current_time_str);
-			log += "executed: "+command+" "+System.getProperty("user.home")+"/LoggerHome"+" "+isRGB2BGR+""+" "+isUpsideDown+""+"1"+current_time_str+"\n";
+			processBuilder = new ProcessBuilder(command, System.getProperty("user.home")+"/LoggerHome", isRGB2BGR+"", isUpsideDown+"", isViewer+"", isRecording+"", current_time_str);
+			log += "executed: "+command+" "+System.getProperty("user.home")+"/LoggerHome"+" "+isRGB2BGR+""+" "+isUpsideDown+" "+isViewer+" "+isRecording+" "+current_time_str+"\n";
 		}
 		return true;
 	}	
