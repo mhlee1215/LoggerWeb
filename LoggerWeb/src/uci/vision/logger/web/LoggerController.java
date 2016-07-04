@@ -172,7 +172,7 @@ public class LoggerController {
 					if(j < 2){
 						System.out.println(j+" "+mov);
 						int pulse = Integer.parseInt(mov);
-						serial.setPulse(j+1, pulse);
+						//serial.setPulse(j+1, pulse);
 						continue;
 					}
 					
@@ -183,6 +183,7 @@ public class LoggerController {
 					}
 					int motorIndex = Integer.parseInt(subParts[0]);
 					int motorToPos = Integer.parseInt(subParts[1]);
+					System.out.println(motorIndex+" "+motorToPos);
 					serial.moveToAndWait(motorIndex, motorToPos);
 
 					if(j == 0){
