@@ -160,7 +160,11 @@ public class LoggerController {
 
 			for (int i = 0 ; i < logTimes ; i++){
 
+				
 				String[] parts = movePlan.split(",");
+				
+				System.out.println("movePlan: "+movePlan);
+				System.out.println("parts.length : "+parts.length);
 				for(int j = 0 ; j < parts.length ; j++){
 					String mov = parts[j];
 					
