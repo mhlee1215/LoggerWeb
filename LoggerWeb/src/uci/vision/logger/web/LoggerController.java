@@ -170,7 +170,7 @@ public class LoggerController {
 					
 					//First two is purse
 					if(j < 2){
-						System.out.println(j+" "+mov);
+						System.out.println("123"+j+" "+mov);
 						int pulse = Integer.parseInt(mov);
 						//serial.setPulse(j+1, pulse);
 						continue;
@@ -178,7 +178,7 @@ public class LoggerController {
 					
 					String[] subParts = mov.trim().split(" ");
 					if(subParts.length != 2){
-						System.err.println("Move format error");
+						System.out.println("Move format error");
 						break;
 					}
 					int motorIndex = Integer.parseInt(subParts[0]);
