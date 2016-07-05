@@ -329,10 +329,9 @@ $(document).ready(function(){
 		   success: function( result ) {
 			   //refreshing log info stopped.
 			   //updateLoggerInfo(false);
-			   updateLog(result, "#kinectLogArea");
+			   //updateLog(result, "#kinectLogArea");
 			   $("#loggerStart").button("enable");
-			   clearInterval(loggerFlushInterval);
-			   
+			   //clearInterval(loggerFlushInterval);
 			   $("#loggerPanel").isLoading( "hide" );
 			   //$("#loggerPanel").addClass("alert-success");
 		  }
@@ -658,6 +657,10 @@ $(document).ready(function(){
 	$("#logInterval").numeric();
 	$("#logTimes").numeric();
 	
+	
+	if(<%=request.getAttribute("isTransferProgress")%> == true){
+		
+	}
 	
 	if(<%=request.getAttribute("isPlannedLogProgress")%> == true){
 		$("#plannedRecord").button("disable");

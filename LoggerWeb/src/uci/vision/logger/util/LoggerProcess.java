@@ -193,6 +193,10 @@ public class LoggerProcess {
 		}
 	}
 	
+	public int getTransferState(){
+		return transferState;
+	}
+	
 	public static int getPid(Process process) {
 	    try {
 	        Class<?> cProcessImpl = process.getClass();

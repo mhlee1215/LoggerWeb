@@ -39,6 +39,7 @@ public class LoggerController {
 	private static int logTimes = LOG_TIMES_DEFAULT;
 	private static int logCurTimes = 0;
 	private static boolean isPlannedLogProgress = false;
+	private static boolean isTransferProgress = false;
 	private static String movePlan = MOVE_PLAN_DEFAULT;
 	//			serial.moveToAndWait(2, 10000);
 	//	serial.moveToAndWait(1, -15000);
@@ -78,6 +79,7 @@ public class LoggerController {
 		model.addObject("logTimes", logTimes);
 		model.addObject("logCurTimes", logCurTimes);
 		model.addObject("isPlannedLogProgress", isPlannedLogProgress);
+		model.addObject("isTransferProgress", isTransferProgress);
 		model.addObject("movePlan", movePlan);
 		model.addObject("logPrefix", depthLogger.getLogPrefix());
 
@@ -202,7 +204,9 @@ public class LoggerController {
 
 				System.out.println("Logger stop!");
 				depthLogger.stopLogger();
+				isTransferProgress = true;
 				depthLogger.transferToServer();
+				isTransferProgress = false;
 				
 				if( i < logTimes-1 )
 					Thread.sleep(1000*logInterval*60);
