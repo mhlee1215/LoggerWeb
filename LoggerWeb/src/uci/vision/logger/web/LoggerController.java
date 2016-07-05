@@ -166,7 +166,7 @@ public class LoggerController {
 				System.out.println("movePlan: "+movePlan);
 				System.out.println("parts.length : "+parts.length);
 				for(int j = 0 ; j < parts.length ; j++){
-					String mov = parts[j];
+					String mov = parts[j].trim();
 					
 					//First two is purse
 					if(j < 2){
@@ -176,7 +176,7 @@ public class LoggerController {
 						continue;
 					}
 					
-					String[] subParts = mov.trim().split(" ");
+					String[] subParts = mov.split(" ");
 					if(subParts.length != 2){
 						System.out.println("Move format error");
 						break;
