@@ -170,9 +170,8 @@ public class LoggerController {
 					
 					//First two is purse
 					if(j < 2){
-						System.out.println("123"+j+" "+mov);
 						int pulse = Integer.parseInt(mov);
-						//serial.setPulse(j+1, pulse);
+						serial.setPulse(j+1, pulse);
 						continue;
 					}
 					
