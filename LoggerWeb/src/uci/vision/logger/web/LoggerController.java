@@ -33,7 +33,7 @@ public class LoggerController {
 
 	public static final int LOG_INTERVAL_DEFAULT = 10;
 	public static final int LOG_TIMES_DEFAULT = 5;
-	public static final String MOVE_PLAN_DEFAULT = "500, 500, 2 5000, 1 -35000, 1 35000, 2 -3000, 1 -35000";
+	public static final String MOVE_PLAN_DEFAULT = "1000, 1000, 2 5000, 1 -35000, 1 35000, 2 -3000, 1 -35000";
 
 	private static int logInterval = LOG_INTERVAL_DEFAULT;
 	private static int logTimes = LOG_TIMES_DEFAULT;
@@ -160,6 +160,7 @@ public class LoggerController {
 
 			for (int i = 0 ; i < logTimes ; i++){
 
+				int[] pulse = new int[2];
 				
 				String[] parts = movePlan.split(",");
 				
@@ -170,8 +171,10 @@ public class LoggerController {
 					
 					//First two is purse
 					if(j < 2){
-						int pulse = Integer.parseInt(mov);
-						serial.setPulse(j+1, pulse);
+						int curPulse = Integer.parseInt(mov);
+						pulse[j] = curPulse;
+						
+						//serial.setPulse(j+1, pulse);
 						continue;
 					}
 					
@@ -185,8 +188,12 @@ public class LoggerController {
 					System.out.println(motorIndex+" "+motorToPos);
 					serial.moveToAndWait(motorIndex, motorToPos);
 
-					if(j == 0){
+					if(j == 2){
 						boolean isPrerun = false;
+						
+						serial.setPulse(1, pulse[0]);
+						serial.setPulse(2, pulse[1]);
+						
 						depthLogger.startLogger(isPrerun);
 						Thread.sleep(2000);
 					}
