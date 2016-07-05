@@ -659,7 +659,7 @@ $(document).ready(function(){
 	
 	
 	if(<%=request.getAttribute("isTransferProgress")%> == true){
-		
+		transferFinishedCallback();
 	}
 	
 	if(<%=request.getAttribute("isPlannedLogProgress")%> == true){
