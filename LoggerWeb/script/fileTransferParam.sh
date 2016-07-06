@@ -10,4 +10,5 @@ cd $DST_PATH
 put $FILE
 bye
 EOF
+rm $FILE
 echo 'end'
