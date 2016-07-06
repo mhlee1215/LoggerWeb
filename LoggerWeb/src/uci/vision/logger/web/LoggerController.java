@@ -33,7 +33,7 @@ public class LoggerController {
 
 	public static final int LOG_INTERVAL_DEFAULT = 10;
 	public static final int LOG_TIMES_DEFAULT = 5;
-	public static final String MOVE_PLAN_DEFAULT = "1000, 1000, 2 5000, 1 -35000, 1 35000, 2 -3000, 1 -35000";
+	public static final String MOVE_PLAN_DEFAULT = "500, 500, 2 3000, 1 -80000, 1 80000, 2 -3000, 1 -80000";
 
 	private static int logInterval = LOG_INTERVAL_DEFAULT;
 	private static int logTimes = LOG_TIMES_DEFAULT;
