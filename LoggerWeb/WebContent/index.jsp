@@ -759,9 +759,7 @@ $(document).ready(function(){
 					</div>
 					<div id="controlTabs-2">
 						<label for="tags">Log Prefix: </label><input id="logPrefix" style="width:100px;" value="<%=request.getAttribute("logPrefix")%>">
-						<label for="tags">Move Plan): </label><input id="movePlan" style="width:300px;" value="<%=request.getAttribute("movePlan")%>"><br>
-						<label for="tags">Move Plan Syntax: pulse1, pulse2, motor# motorPos, ... * ... (* is logger start symbol) </label>
-						<br>
+						<label for="tags">Move Plan: </label><input id="movePlan" style="width:300px;" value="<%=request.getAttribute("movePlan")%>"><br>
 						<label for="tags">Interval (min): </label>
   						<input id="logInterval" style="width:30px;" value="<%=request.getAttribute("logInterval")%>">
   						<label for="tags">Times (0=infinite): </label>

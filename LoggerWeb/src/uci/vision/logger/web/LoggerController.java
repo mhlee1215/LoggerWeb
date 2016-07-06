@@ -33,7 +33,7 @@ public class LoggerController {
 
 	public static final int LOG_INTERVAL_DEFAULT = 10;
 	public static final int LOG_TIMES_DEFAULT = 5;
-	public static final String MOVE_PLAN_DEFAULT = "1000, 1000, 2 3000, 1 -80000, *, 1 80000, 2 -3000, 1 -80000";
+	public static final String MOVE_PLAN_DEFAULT = "1000, 1000, 2 3000, 1 -80000, 1 80000, 2 -3000, 1 -80000";
 
 	private static int logInterval = LOG_INTERVAL_DEFAULT;
 	private static int logTimes = LOG_TIMES_DEFAULT;
@@ -166,7 +166,9 @@ public class LoggerController {
 				serial.setPulse(2, 20000);
 				
 				int[] pulse = new int[2];
+				
 				String[] parts = movePlan.split(",");
+				
 				System.out.println("movePlan: "+movePlan);
 				System.out.println("parts.length : "+parts.length);
 				for(int j = 0 ; j < parts.length ; j++){
@@ -176,19 +178,15 @@ public class LoggerController {
 					if(j < 2){
 						int curPulse = Integer.parseInt(mov);
 						pulse[j] = curPulse;
+						
 						//serial.setPulse(j+1, pulse);
 						continue;
 					}
 					
 					String[] subParts = mov.split(" ");
 					if(subParts.length != 2){
-						//Start Symbol *
 						if("*".equals(mov)){
-							boolean isPrerun = false;
-							serial.setPulse(1, pulse[0]);
-							serial.setPulse(2, pulse[1]);
-							depthLogger.startLogger(isPrerun);
-							Thread.sleep(2000);	
+							
 						}else{
 							System.out.println("Move format error");
 							break;	
@@ -201,7 +199,18 @@ public class LoggerController {
 					
 					serial.moveToAndWait(motorIndex, motorToPos);
 					
-					
+					//When j is 0, 1 it is pulse setting
+					//When j is 2, 3 it is first pos setting
+					//When j is 4, it is starting point of logging.
+					if(j == 4){
+						boolean isPrerun = false;
+						
+						serial.setPulse(1, pulse[0]);
+						serial.setPulse(2, pulse[1]);
+						
+						depthLogger.startLogger(isPrerun);
+						Thread.sleep(2000);
+					}
 				}
 
 
