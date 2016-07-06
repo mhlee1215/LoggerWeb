@@ -560,8 +560,8 @@ $(document).ready(function(){
 	
 	$( "#motor-1-pos-slider" ).slider({
       orientation: "horizontal",
-      min: -20000,
-      max: 20000,
+      min: -80000,
+      max: 80000,
       value: motor1_pos,
       animate: true,
       slide: function( event, ui ) {

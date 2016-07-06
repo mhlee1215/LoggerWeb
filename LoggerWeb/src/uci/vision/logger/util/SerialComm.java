@@ -56,9 +56,9 @@ public class SerialComm implements SerialPortEventListener {
 
 	//private static int curPortIdx = 0;
 	
-	private int moveStep = 500;
-	private int pulse1 = 1000;
-	private int pulse2 = 1000;
+	private int moveStep = 3000;
+	private int pulse1 = 20000;
+	private int pulse2 = 20000;
 	
 	private boolean isInitialized = false;
 	

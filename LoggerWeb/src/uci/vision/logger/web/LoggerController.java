@@ -188,8 +188,16 @@ public class LoggerController {
 					int motorIndex = Integer.parseInt(subParts[0]);
 					int motorToPos = Integer.parseInt(subParts[1]);
 					System.out.println(motorIndex+" "+motorToPos);
-					serial.moveToAndWait(motorIndex, motorToPos);
-
+					
+					if(j == 2){
+						//Set to The first pos
+						serial.setPulse(1, 20000);
+						serial.setPulse(2, 20000);
+						serial.moveToAndWait(motorIndex, motorToPos);
+					}else{
+						serial.moveToAndWait(motorIndex, motorToPos);	
+					}
+					
 					if(j == 2){
 						boolean isPrerun = false;
 						
@@ -222,6 +230,8 @@ public class LoggerController {
 		isPlannedLogProgress = false;
 		
 		//Set to Origin
+		serial.setPulse(1, 20000);
+		serial.setPulse(2, 20000);
 		serial.moveToAndWait(1, 0);
 		serial.moveToAndWait(2, 0);
 		
