@@ -160,7 +160,7 @@ public class LoggerController {
 
 		try{
 
-			for (int i = 0 ; i < logTimes ; i++){
+			for (logCurTimes = 0 ; logCurTimes < logTimes ; logCurTimes++){
 
 				serial.setPulse(1, 20000);
 				serial.setPulse(2, 20000);
@@ -185,13 +185,8 @@ public class LoggerController {
 					
 					String[] subParts = mov.split(" ");
 					if(subParts.length != 2){
-						if("*".equals(mov)){
-							
-						}else{
-							System.out.println("Move format error");
-							break;	
-						}
-						
+						System.out.println("Move format error");
+						break;	
 					}
 					int motorIndex = Integer.parseInt(subParts[0]);
 					int motorToPos = Integer.parseInt(subParts[1]);
@@ -220,10 +215,10 @@ public class LoggerController {
 				depthLogger.transferToServer();
 				isTransferProgress = false;
 				
-				if( i < logTimes-1 )
+				if( logCurTimes < logTimes-1 )
 					Thread.sleep(1000*logInterval*60);
 				
-				logCurTimes++;
+				//logCurTimes++;
 			}
 
 		}catch(Exception e){
