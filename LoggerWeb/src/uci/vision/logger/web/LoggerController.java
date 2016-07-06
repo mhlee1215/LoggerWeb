@@ -202,7 +202,7 @@ public class LoggerController {
 					//When j is 0, 1 it is pulse setting
 					//When j is 2, 3 it is first pos setting
 					//When j is 4, it is starting point of logging.
-					if(j == 4){
+					if(j == 3){
 						boolean isPrerun = false;
 						
 						serial.setPulse(1, pulse[0]);
