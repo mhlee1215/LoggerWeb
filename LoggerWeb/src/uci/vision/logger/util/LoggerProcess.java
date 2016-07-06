@@ -156,7 +156,7 @@ public class LoggerProcess {
 	
 	public void transferToServer(){
 		//If it is actual recording, transfer file to server automatically
-		new Thread(new TransferThread());
+		new Thread(new TransferThread()).start();
 	}
 	
 	public int getTransferState(){
