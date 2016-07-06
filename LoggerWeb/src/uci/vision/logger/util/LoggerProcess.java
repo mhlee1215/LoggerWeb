@@ -156,41 +156,7 @@ public class LoggerProcess {
 	
 	public void transferToServer(){
 		//If it is actual recording, transfer file to server automatically
-				
-		try {
-			//current_time_str = time_formatter.format(System.currentTimeMillis())+".klg";
-			processBuilder = new ProcessBuilder(ftpCommand, System.getProperty("user.home")+"/LoggerHome/capture/"+current_time_str+".klg");
-			log += "executed: "+ftpCommand+" "+System.getProperty("user.home")+"/LoggerHome/capture/"+current_time_str+".klg"+"\n";
-			log += "Transfer started.";
-			process = processBuilder.start();
-			
-			//isTransferStarted = true;
-			transferState = STATE_TRANSFER_SENDING;
-			
-			BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
-			outputReader = (new Thread(new FTPReader(input)));
-			outputReader.start();
-			
-			System.out.println("AM I wait?");
-			process.waitFor();
-			//Thread.sleep(5000);
-			System.out.println("I AM WAIT!");
-			
-			//isTransferStarted = false;
-			transferState = STATE_TRANSFER_FINISHED;
-									
-			//System.out.println("KilleD!!!"+getPid(process));
-			//Runtime.getRuntime().exec("kill -2 "+getPid(process));
-			//process.destroyForcibly();
-			
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			log += getExceptionStackMessage(e);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		new Thread(new TransferThread());
 	}
 	
 	public int getTransferState(){
@@ -381,6 +347,48 @@ public class LoggerProcess {
 
 	public boolean isInitialized() {
 		return isInitialized;
+	}
+	
+	class TransferThread implements Runnable  {
+
+		public void run() {
+			// TODO Auto-generated method stub
+			
+			try {
+				//current_time_str = time_formatter.format(System.currentTimeMillis())+".klg";
+				processBuilder = new ProcessBuilder(ftpCommand, System.getProperty("user.home")+"/LoggerHome/capture/"+current_time_str+".klg");
+				log += "executed: "+ftpCommand+" "+System.getProperty("user.home")+"/LoggerHome/capture/"+current_time_str+".klg"+"\n";
+				log += "Transfer started.";
+				process = processBuilder.start();
+				
+				//isTransferStarted = true;
+				transferState = STATE_TRANSFER_SENDING;
+				
+				BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
+				outputReader = (new Thread(new FTPReader(input)));
+				outputReader.start();
+				
+				System.out.println("AM I wait?");
+				process.waitFor();
+				//Thread.sleep(5000);
+				System.out.println("I AM WAIT!");
+				
+				//isTransferStarted = false;
+				transferState = STATE_TRANSFER_FINISHED;
+										
+				//System.out.println("KilleD!!!"+getPid(process));
+				//Runtime.getRuntime().exec("kill -2 "+getPid(process));
+				//process.destroyForcibly();
+				
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				log += getExceptionStackMessage(e);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 }
 
