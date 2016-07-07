@@ -717,9 +717,8 @@ $(document).ready(function(){
 			  //console.log(result);
 			  var parts = result.split("_/");
 			  $("#transferProgressText").val("Now transfering.. "+parts[0]+" ... "+parts[1]+" items more.");
-			  console.log(result+' '+parts[0]+' '+parts[1]+' '+parts[2]);
+			  //console.log(result+' '+parts[0]+' '+parts[1]+' '+parts[2]);
 			  $( "#transferProgressbar" ).progressbar( "value", eval(parts[2]) );
-			  
 			  if(parts[1] == '0' && parts[2] == '0'){
 				  startTransferLogUpdating(false);
 			  }
@@ -733,7 +732,7 @@ $(document).ready(function(){
 			$("#transferLogArea").show(1000);
 			transferLogInterval = setInterval(function(){
 				updateTransferProgress();
-			},80);
+			},200);
 		}else{
 			$("#transferLogArea").hide(1000);
 			clearInterval(transferLogInterval);
