@@ -44,7 +44,7 @@ public class FileTransferWorker implements Runnable{
 	}
 	
 	public int getWorkSize(){
-		return workSize;
+		return transferQueue.size();
 	}
 
 	public int getCurProgress(){

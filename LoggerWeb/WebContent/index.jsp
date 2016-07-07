@@ -716,7 +716,7 @@ $(document).ready(function(){
 			  //alert(result);
 			  //console.log(result);
 			  var parts = result.split("_/");
-			  $("#transferProgressText").val("Now transfering.. "+parts[0]+" ... "+parts[1]+" items.");
+			  $("#transferProgressText").val("Now transfering.. "+parts[0]+" ... "+parts[1]+" items more.");
 			  console.log(result+' '+parts[0]+' '+parts[1]+' '+parts[2]);
 			  $( "#transferProgressbar" ).progressbar( "value", eval(parts[2]) );
 			  
