@@ -8,6 +8,8 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
+import java.util.LinkedList;
+import java.util.Queue;
 
 public class LoggerProcess {
 	//String command = "~/cvLogger";
@@ -34,15 +36,14 @@ public class LoggerProcess {
 	SimpleDateFormat time_formatter;
 	String current_time_str;
 	
-	public static int STATE_TRANSFER_INIT = 1;
-	public static int STATE_TRANSFER_SENDING = 2;
-	public static int STATE_TRANSFER_FINISHED = 3;
 	
-	public int transferState = STATE_TRANSFER_INIT;
 	
 	public static String LOG_PREFIX_DEFAULT = "NONAME";
 	
 	String logPrefix = LOG_PREFIX_DEFAULT;
+
+	FileTransferWorker transferWorker = new FileTransferWorker();
+	Thread transferThread = null;
 	
 	public LoggerProcess(){
 		time_formatter = new SimpleDateFormat("yyyy-MM-dd_HH_mm");
@@ -156,11 +157,22 @@ public class LoggerProcess {
 	
 	public void transferToServer(){
 		//If it is actual recording, transfer file to server automatically
-		new Thread(new TransferThread()).start();
+		//new Thread(new TransferThread()).start();
+		addTransferWork(current_time_str+".klg");
+//		addTransferWork("abcdefg"+".klg");
+//		addTransferWork("abcdefg"+".klg");
+//		addTransferWork("abcdefg"+".klg");
+	}
+	
+	public boolean isTransfering(){
+		if(transferWorker.getTransferState() == FileTransferWorker.STATE_TRANSFER_SENDING)
+			return true;
+		else
+			return false;
 	}
 	
 	public int getTransferState(){
-		return transferState;
+		return transferWorker.getTransferState();
 	}
 	
 	public static int getPid(Process process) {
@@ -177,8 +189,33 @@ public class LoggerProcess {
 	    }
 	}
 	
+	public void addTransferWork(String fileName){
+		transferWorker.addWork(fileName);
+		startFileTransfer();
+	}
+	
+	public void startFileTransfer(){
+		//If it is not started
+		if(transferThread == null){
+			transferThread = new Thread(transferWorker);
+			transferThread.start();
+		}
+		//If is finished
+		else if(!transferThread.isAlive()){
+			transferThread = new Thread(transferWorker);
+			transferThread.start();
+		}else{
+			//It is still working! Do nothing
+		}
+	}
+	
+	public String getTransferStatusLog(){
+		return transferWorker.getWorkFileName()+"_/"+transferWorker.getWorkSize()+"_/"+transferWorker.getCurProgress();
+	}
+	
+	
 	public void waitUntilTransferFinished(){
-		while(transferState != STATE_TRANSFER_FINISHED){
+		while(transferWorker.getTransferState() != FileTransferWorker.STATE_TRANSFER_FINISHED){
 			try {
 				Thread.sleep(500);
 			} catch (InterruptedException e) {
@@ -186,7 +223,7 @@ public class LoggerProcess {
 				e.printStackTrace();
 			}
 		}
-		transferState = STATE_TRANSFER_INIT;
+		//transferWorker.getTransferState() = STATE_TRANSFER_INIT;
 	}
 	
 	public static void main(String[] args){
@@ -251,44 +288,44 @@ public class LoggerProcess {
 	    }
 	}
 	
-	class FTPReader implements Runnable 
-	{
-		BufferedReader in;
-		boolean isStop = false;
-	    
-	    public FTPReader ( BufferedReader in )
-	    {
-	        this.in = in;
-	    }
-	    
-	    public void run ()
-	    {
-	    	System.out.println("FTP Reader started.");
-	        //byte[] buffer = new byte[1024];
-	        //int len = -1;
-	        String line;
-	        try
-	        {
-	        	System.out.println("wait..");
-	            while ( (line = in.readLine()) != null )
-	            {
-	                System.out.println(line);
-	                log += line+"\n";
-	                if("end".equalsIgnoreCase(line)){
-	                	System.out.println("FTP, meets end string");
-	                	//isTransferStarted = false;
-	                	
-	                }
-	            }
-	        }
-	        catch ( IOException e )
-	        {
-	            e.printStackTrace();
-	            log += getExceptionStackMessage(e);
-	        }          
-	        System.out.println("FTP Reader terminated");
-	    }
-	}
+//	class FTPReader implements Runnable 
+//	{
+//		BufferedReader in;
+//		boolean isStop = false;
+//	    
+//	    public FTPReader ( BufferedReader in )
+//	    {
+//	        this.in = in;
+//	    }
+//	    
+//	    public void run ()
+//	    {
+//	    	System.out.println("FTP Reader started.");
+//	        //byte[] buffer = new byte[1024];
+//	        //int len = -1;
+//	        String line;
+//	        try
+//	        {
+//	        	System.out.println("wait..");
+//	            while ( (line = in.readLine()) != null )
+//	            {
+//	                System.out.println(line);
+//	                log += line+"\n";
+//	                if("end".equalsIgnoreCase(line)){
+//	                	System.out.println("FTP, meets end string");
+//	                	//isTransferStarted = false;
+//	                	
+//	                }
+//	            }
+//	        }
+//	        catch ( IOException e )
+//	        {
+//	            e.printStackTrace();
+//	            log += getExceptionStackMessage(e);
+//	        }          
+//	        System.out.println("FTP Reader terminated");
+//	    }
+//	}
 	
 	public void setRGB2BGR(boolean isRGB2BGR){
 		if(isRGB2BGR){
@@ -349,47 +386,47 @@ public class LoggerProcess {
 		return isInitialized;
 	}
 	
-	class TransferThread implements Runnable  {
-
-		public void run() {
-			// TODO Auto-generated method stub
-			
-			try {
-				//current_time_str = time_formatter.format(System.currentTimeMillis())+".klg";
-				processBuilder = new ProcessBuilder(ftpCommand, System.getProperty("user.home")+"/LoggerHome/capture/"+current_time_str+".klg");
-				log += "executed: "+ftpCommand+" "+System.getProperty("user.home")+"/LoggerHome/capture/"+current_time_str+".klg"+"\n";
-				log += "Transfer started.";
-				process = processBuilder.start();
-				
-				//isTransferStarted = true;
-				transferState = STATE_TRANSFER_SENDING;
-				
-				BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
-				outputReader = (new Thread(new FTPReader(input)));
-				outputReader.start();
-				
-				System.out.println("AM I wait?");
-				process.waitFor();
-				//Thread.sleep(5000);
-				System.out.println("I AM WAIT!");
-				
-				//isTransferStarted = false;
-				transferState = STATE_TRANSFER_FINISHED;
-										
-				//System.out.println("KilleD!!!"+getPid(process));
-				//Runtime.getRuntime().exec("kill -2 "+getPid(process));
-				//process.destroyForcibly();
-				
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				log += getExceptionStackMessage(e);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-	}
+//	class TransferThread implements Runnable  {
+//
+//		public void run() {
+//			// TODO Auto-generated method stub
+//			
+//			try {
+//				//current_time_str = time_formatter.format(System.currentTimeMillis())+".klg";
+//				processBuilder = new ProcessBuilder(ftpCommand, System.getProperty("user.home")+"/LoggerHome/capture/"+current_time_str+".klg");
+//				log += "executed: "+ftpCommand+" "+System.getProperty("user.home")+"/LoggerHome/capture/"+current_time_str+".klg"+"\n";
+//				log += "Transfer started.";
+//				process = processBuilder.start();
+//				
+//				//isTransferStarted = true;
+//				transferState = STATE_TRANSFER_SENDING;
+//				
+////				BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
+////				outputReader = (new Thread(new FTPReader(input)));
+////				outputReader.start();
+//				
+//				System.out.println("AM I wait?");
+//				process.waitFor();
+//				//Thread.sleep(5000);
+//				System.out.println("I AM WAIT!");
+//				
+//				//isTransferStarted = false;
+//				transferState = STATE_TRANSFER_FINISHED;
+//										
+//				//System.out.println("KilleD!!!"+getPid(process));
+//				//Runtime.getRuntime().exec("kill -2 "+getPid(process));
+//				//process.destroyForcibly();
+//				
+//			} catch (IOException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//				log += getExceptionStackMessage(e);
+//			} catch (InterruptedException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//		}
+//	}
 }
 
 

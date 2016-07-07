@@ -68,6 +68,17 @@ select {
 	
 .ui-widget{font-size:12px;}
 
+.ui-progressbar {
+    position: relative;
+}
+.progress-label {
+  position: absolute;
+  left: 50%;
+  top: 4px;
+  font-weight: bold;
+  text-shadow: 1px 1px 0 #fff;
+}
+ 
 </style>
 </head>
 <body>
@@ -266,6 +277,7 @@ $(document).ready(function(){
 	
 	
 	function logger(isStart){
+		$("#loggerStop").button("enable");
 		if(isStart)
 			updateLoggerInfo(isStart);
 		
@@ -284,6 +296,9 @@ $(document).ready(function(){
 			  
 			  if(!isStart)
 					updateLoggerInfo(isStart);
+			  
+			  if(!isStart)
+			  	startTransferLogUpdating(true);
 		  }
 		});
 	}
@@ -321,7 +336,10 @@ $(document).ready(function(){
 	}
 	
 	function transferFinishedCallback(){
-		$("#loggerPanel").isLoading({ text: "Transfering..",position:   "overlay" });
+		//return;
+		//$("#loggerPanel").isLoading({ text: "Transfering..",position:   "overlay" });
+		
+		
 		//$("#loggerPanel").removeClass("alert-success");
 		$.ajax({
 			url: "loggerWaitUntilTransfer.do",
@@ -331,8 +349,9 @@ $(document).ready(function(){
 			   //updateLoggerInfo(false);
 			   //updateLog(result, "#kinectLogArea");
 			   $("#loggerStart").button("enable");
+			   $("#loggerStop").button("disable");
 			   //clearInterval(loggerFlushInterval);
-			   $("#loggerPanel").isLoading( "hide" );
+			   //$("#loggerPanel").isLoading( "hide" );
 			   //$("#loggerPanel").addClass("alert-success");
 		  }
 		});
@@ -660,6 +679,7 @@ $(document).ready(function(){
 	
 	if(<%=request.getAttribute("isTransferProgress")%> == true){
 		transferFinishedCallback();
+		startTransferLogUpdating(true);
 	}
 	
 	if(<%=request.getAttribute("isPlannedLogProgress")%> == true){
@@ -683,13 +703,76 @@ $(document).ready(function(){
 	if(<%=request.getAttribute("isLoggerStarted")%> == true){
 		$("#loggerStart").button("disable");
 		updateLoggerInfo(true);
+   }else{
+	   $("#loggerStop").button("disable");
    }
 	
+
+	function updateTransferProgress(){
+		$.ajax({
+		  url: "getTransferProgressLog.do",
+		  
+		  success: function( result ) {
+			  //alert(result);
+			  //console.log(result);
+			  var parts = result.split("_/");
+			  $("#transferProgressText").val("Now transfering.. "+parts[0]+" ... "+parts[1]+" items.");
+			  console.log(result+' '+parts[0]+' '+parts[1]+' '+parts[2]);
+			  $( "#transferProgressbar" ).progressbar( "value", eval(parts[2]) );
+			  
+			  if(parts[1] == '0' && parts[2] == '0'){
+				  startTransferLogUpdating(false);
+			  }
+			  
+		  }
+		});
+	}
+	
+	function startTransferLogUpdating(isStart){
+		if(isStart){
+			$("#transferLogArea").show(1000);
+			transferLogInterval = setInterval(function(){
+				updateTransferProgress();
+			},80);
+		}else{
+			$("#transferLogArea").hide(1000);
+			clearInterval(transferLogInterval);
+			
+		}
+	}
 	
 	//$("#plannedRecord").text("");
 	//logCurTimes
 	//$("#loggerPanel").isLoading({ text: "Loading",position:   "overlay" });
 	//$("#loggerPanel").removeClass("alert-success");
+	
+	var progressbar = $( "#transferProgressbar" );
+    progressLabel = $( "#transferProgressLabel" );
+
+  progressbar.progressbar({
+    value: 0,
+    change: function() {
+      progressLabel.text( progressbar.progressbar( "value" ) + "%" );
+    },
+    complete: function() {
+      progressLabel.text( "Complete!" );
+    	//progressbar.hide();
+    }
+  });
+
+  /*
+  function progress() {
+    var val = progressbar.progressbar( "value" ) || 0;
+
+    progressbar.progressbar( "value", val + 2 );
+
+    if ( val < 99 ) {
+      setTimeout( progress, 80 );
+    }
+  }
+
+  setTimeout( progress, 2000 );
+  */
 })
 
 </script>
@@ -829,8 +912,17 @@ $(document).ready(function(){
 			<td><textarea id="kinectLogArea" rows="10" cols="37"></textarea></td>
 		</tr>
 		
+		<tr id="transferLogArea" style="display:none;">
+			<td colspan="2">
+			<input type="text" id="transferProgressText" readonly style="border:0; color:#f6931f; font-weight:bold; width:100%;" value="Now transfering.. SOMETHING ... 2 more">
+			<div id="transferProgressbar"><div id="transferProgressLabel" class="progress-label">Loading...</div></div>
+			</td>
+		</tr>
+		
 	</table>
+	
 	</div>
+	
 	
 </div>
 </body>

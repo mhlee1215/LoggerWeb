@@ -79,7 +79,7 @@ public class LoggerController {
 		model.addObject("logTimes", logTimes);
 		model.addObject("logCurTimes", logCurTimes);
 		model.addObject("isPlannedLogProgress", isPlannedLogProgress);
-		model.addObject("isTransferProgress", isTransferProgress);
+		model.addObject("isTransferProgress", depthLogger.isTransfering());
 		model.addObject("movePlan", movePlan);
 		model.addObject("logPrefix", depthLogger.getLogPrefix());
 
@@ -211,9 +211,9 @@ public class LoggerController {
 
 				System.out.println("Logger stop!");
 				depthLogger.stopLogger();
-				isTransferProgress = true;
+				//isTransferProgress = true;
 				depthLogger.transferToServer();
-				isTransferProgress = false;
+				//isTransferProgress = false;
 				
 				if( logCurTimes < logTimes-1 )
 					Thread.sleep(1000*logInterval*60);
@@ -259,6 +259,11 @@ public class LoggerController {
 		return log;
 	}
 
+	@RequestMapping("/getTransferProgressLog.do")
+	public @ResponseBody String getTransferProgressLog(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		return depthLogger.getTransferStatusLog();
+	}
+	
 	@RequestMapping("/loggerWaitUntilTransfer.do")
 	public @ResponseBody String loggerWaitUntilTransfer(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		//wait until transfer finished.
