@@ -8,6 +8,8 @@ import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.io.CopyStreamAdapter;
 
+import uci.vision.logger.domain.LogConfig;
+
 public class FileTransfer{
 	File uploadfile = null;
 	int percent = 0;
@@ -32,14 +34,15 @@ public class FileTransfer{
 		String fileName = srcName;//"test123";
 
 		try{
+			LogConfig lc = LogConfig.readLogConfig();
 			uploadfile = new File(System.getProperty("user.home")+"/LoggerHome/capture/"+srcName);
 			//uploadfile = new File(System.getProperty("user.home")+"/data_from_odroid/"+srcName);
 			ftp = new FTPClient();
-			ftp.connect("128.195.57.180");
-			ftp.login("mhlee", "cvip2423");
+			ftp.connect(lc.getFtpHost());
+			ftp.login(lc.getFtpId(), lc.getFtpPwd());
 
 			ftp.setFileType(FTP.BINARY_FILE_TYPE);
-			ftp.changeWorkingDirectory("data_from_odroid");
+			ftp.changeWorkingDirectory(lc.getFtpDst());
 
 			CopyStreamAdapter streamListener = new CopyStreamAdapter() {
 

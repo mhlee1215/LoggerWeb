@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
+import uci.vision.logger.util.FileSubmitTracer;
 import uci.vision.logger.util.LoggerProcess;
 import uci.vision.logger.util.SerialComm;
 
@@ -46,6 +47,8 @@ public class LoggerController {
 	//	serial.moveToAndWait(1, 15000);
 	//	serial.moveToAndWait(2, -8000);
 	//	serial.moveToAndWait(1, -15000);
+	
+	
 
 	public LoggerController(){
 		System.out.println("INITIALIZE!");

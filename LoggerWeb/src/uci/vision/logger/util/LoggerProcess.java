@@ -11,6 +11,8 @@ import java.text.SimpleDateFormat;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import uci.vision.logger.domain.LogConfig;
+
 public class LoggerProcess {
 	//String command = "~/cvLogger";
 	//String command = "~/Downloads/Logger_libfreenect_custom/bin/freenect-cvdemo";
@@ -44,12 +46,16 @@ public class LoggerProcess {
 
 	FileTransferWorker transferWorker = new FileTransferWorker();
 	Thread transferThread = null;
+	private static FileSubmitTracer fst;
 	
 	public LoggerProcess(){
 		time_formatter = new SimpleDateFormat("yyyy-MM-dd_HH_mm");
 		
 		init();
 		log = "";
+		
+		logPrefix = LogConfig.readLogConfig().getLogPrefix();
+		fst = new FileSubmitTracer();
 		
 	}	
 	
@@ -59,6 +65,7 @@ public class LoggerProcess {
 
 	public void setLogPrefix(String logPrefix) {
 		this.logPrefix = logPrefix;
+		LogConfig.readLogConfig().setLogPrefix(logPrefix);
 		log += "logPrefix was changed as :"+logPrefix;
 	}
 
@@ -145,7 +152,11 @@ public class LoggerProcess {
 				Thread.sleep(1000);
 				process.destroy();
 				outputReader.stop();
-				//outputReader.stop();
+				
+				
+				
+				//Add to list to be transmitted.
+				
 			} catch (IOException | InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
