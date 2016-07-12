@@ -2,6 +2,7 @@ package uci.vision.logger.web;
 
 import java.util.List;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.context.ServletContextAware;
 import org.springframework.web.servlet.ModelAndView;
 
 import uci.vision.logger.util.FileSubmitTracer;
@@ -25,7 +27,7 @@ import uci.vision.logger.util.SerialComm;
 
 
 @Controller
-public class LoggerController {
+public class LoggerController{
 
 	private Logger logger = Logger.getLogger(getClass());
 
@@ -48,16 +50,21 @@ public class LoggerController {
 	//	serial.moveToAndWait(2, -8000);
 	//	serial.moveToAndWait(1, -15000);
 	
-	
+//	@Autowired
+//    ServletContext context; 
 
 	public LoggerController(){
 		System.out.println("INITIALIZE!");
 		serial.initialize();
+		
+		//System.out.println(context.getRealPath("/"));
 	}
 
 	@RequestMapping("/index.do")
 	public ModelAndView index(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
+		System.out.println(request.getSession().getServletContext().getRealPath("/"));
+		
 		int apachePort = ServletRequestUtils.getIntParameter(request, "apachePort", 80);
 		boolean isRGB2BGR = ServletRequestUtils.getBooleanParameter(request, "isRGB2BGR", depthLogger.getRGB2BGR());
 		boolean isUpsideDown = ServletRequestUtils.getBooleanParameter(request, "isUpsideDown", depthLogger.getUpsideDown());
@@ -389,8 +396,4 @@ public class LoggerController {
 		SerialComm.flushLog();
 		return log;
 	}
-
-
-
-
 }

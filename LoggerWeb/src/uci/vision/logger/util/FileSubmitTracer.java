@@ -4,11 +4,17 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -16,23 +22,40 @@ import java.util.List;
 public class FileSubmitTracer {
 
 	InputStream inputStream = null;
-	String pathToBeTransmitted = "conf/log.be.transmitted";
-	String pathTransmitted = "conf/log.transmitted";
+	String pathToBeTransmitted = "/fileLog/log.be.transmitted";
+	String pathTransmitted = "/fileLog/log.transmitted";
+	
+	String ActualPathToBe = "";
+	String ActualPatheD = "";
+	 
+	
 	
 	List<String> transmittedList;
 	List<String> toBeTransmittedList;
 	
 	
 	public FileSubmitTracer(){
-		transmittedList = readList(pathTransmitted);
-		toBeTransmittedList = readList(pathToBeTransmitted);
+		URL r = this.getClass().getResource("/");
+		ActualPathToBe = r.getPath()+".."+pathToBeTransmitted;
+		ActualPatheD = r.getPath()+".."+pathTransmitted;
+		
+		System.out.println(ActualPatheD);
+		System.out.println(ActualPathToBe);
+		
+		transmittedList = readList(ActualPatheD);
+		toBeTransmittedList = readList(ActualPathToBe);
 	}
 	
 	public void writeList(String fileName, List<String> q){
 		PrintWriter pw = null;
 		
 		try {
-			pw = new PrintWriter(new FileWriter(fileName));
+			
+			URL resourceUrl = getClass().getResource(fileName);
+			File file = new File(resourceUrl.toURI());
+			OutputStream output = new FileOutputStream(fileName);
+						
+			pw = new PrintWriter(new OutputStreamWriter(output));
 			
 			for(int i = 0 ; i < q.size(); i++){
 				//Use like System.out.println
@@ -41,23 +64,28 @@ public class FileSubmitTracer {
 			pw.flush();
 			pw.close();
 			
-		} catch (IOException e) {
+		} catch (IOException | URISyntaxException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 	
 	public void sync(){
-		writeList(pathTransmitted, transmittedList);
-		writeList(pathToBeTransmitted, toBeTransmittedList);
+		writeList(ActualPatheD, transmittedList);
+		writeList(ActualPathToBe, toBeTransmittedList);
 	}
 	
 	public List<String> readList(String fileName){
 		List<String> fileList = new LinkedList<String>();
 		
 		try {
-			FileReader fr = new FileReader(fileName);
-			BufferedReader br = new BufferedReader(fr);
+			
+//			URL resourceUrl = getClass().getResource(path);
+//			File file = new File(resourceUrl.toURI());
+//			OutputStream output = new FileOutputStream(file);
+			
+			InputStream is = new FileInputStream(fileName);//getClass().getClassLoader().getResourceAsStream(fileName);
+			BufferedReader br = new BufferedReader(new InputStreamReader(is));
 			
 			String thisLine = null;
 			while ((thisLine = br.readLine()) != null) {
@@ -113,14 +141,14 @@ public class FileSubmitTracer {
 //		fst.doFlush();
 //		fst.doFlush();
 		
-		fst.addWork("11");
-		fst.addWork("22");
-		fst.addWork("33");
-		fst.addWork("44");
-		
-		fst.doFlush();
-		fst.doFlush();
-		fst.doFlush();
+//		fst.addWork("11");
+//		fst.addWork("22");
+//		fst.addWork("33");
+//		fst.addWork("44");
+//		
+//		fst.doFlush();
+//		fst.doFlush();
+//		fst.doFlush();
 		
 		System.out.println(fst);
 		

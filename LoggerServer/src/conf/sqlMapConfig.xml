@@ -30,5 +30,6 @@
     </transactionManager>
   
   <sqlMap resource="query/ConfigSql.xml"/>
+  <sqlMap resource="query/ContentSql.xml"/>
    
 </sqlMapConfig>

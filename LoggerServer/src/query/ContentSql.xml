@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="ContentSql">
+ 	
+ 	<resultMap id="Content" class="uci.vision.logger.server.domain.LogContent">
+		<result column="ID" property="id" />
+		<result column="FILENAME" property="filename" />
+		<result column="CATEGORY" property="category" />
+		<result column="ISVALID" property="isvalid" />
+		<result column="DATE" property="date" />
+		<result column="TRANSMITTED" property="transmitted" />
+ 	</resultMap>
+ 	
+ 	<select id="readContents" resultMap="Content" parameterClass="uci.vision.logger.server.domain.LogContent">
+ 		SELECT ID, FILENAME, CATEGORY, ISVALID, DATE, TRANSMITTED 
+ 		FROM contentTable
+ 		where ID = ID
+ 		<isNotEmpty property="filename" prepend="and">
+ 		FILENAME = #filename#
+ 		</isNotEmpty> 
+ 		<isNotEmpty property="category" prepend="and">
+ 		CATEGORY = #category#
+ 		</isNotEmpty>
+ 		<isNotEmpty property="isvalid" prepend="and">
+ 		ISVALID = #isvalid#
+ 		</isNotEmpty>
+ 		<isNotEmpty property="transmitted" prepend="and">
+ 		TRANSMITTED = #transmitted#
+ 		</isNotEmpty>
+ 		
+ 	</select>
+ 	
+ 	<insert id="createContents" parameterClass="uci.vision.logger.server.domain.LogContent">
+ 		INSERT INTO contentTable (FILENAME, CATEGORY, ISVALID, DATE, TRANSMITTED) values(#filename#, #category#, #isvalid#, #date#, #transmitted#)
+ 	</insert>
+ 	
+ 	<delete id="deleteContents" parameterClass="uci.vision.logger.server.domain.LogContent">
+ 		DELETE 
+ 		FROM contentTable
+ 		where ID=ID
+ 		<isNotEmpty property="filename" prepend="and">
+ 		FILENAME = #filename#
+ 		</isNotEmpty> 
+ 		<isNotEmpty property="category" prepend="and">
+ 		CATEGORY = #category#
+ 		</isNotEmpty>
+ 		<isNotEmpty property="isvalid" prepend="and">
+ 		ISVALID = #isvalid#
+ 		</isNotEmpty>
+ 		<isNotEmpty property="transmitted" prepend="and">
+ 		TRANSMITTED = #transmitted#
+ 		</isNotEmpty>
+ 	</delete>
+ 	
+ 	<update id="updateContents" parameterClass="uci.vision.logger.server.domain.LogContent">
+ 		UPDATE contentTable
+ 		SET ID = ID
+ 		<isNotEmpty property="filename" prepend=",">
+ 		FILENAME = #filename#
+ 		</isNotEmpty> 
+ 		<isNotEmpty property="category" prepend=",">
+ 		CATEGORY = #category#
+ 		</isNotEmpty>
+ 		<isNotEmpty property="isvalid" prepend=",">
+ 		ISVALID = #isvalid#
+ 		</isNotEmpty>
+ 		<isNotEmpty property="transmitted" prepend=",">
+ 		TRANSMITTED = #transmitted#
+ 		</isNotEmpty> 
+ 		where FILENAME = #filename#
+ 	</update>
+
+</sqlMap>
+
+

@@ -54,9 +54,10 @@ public class LoggerProcess {
 		init();
 		log = "";
 		
-		logPrefix = LogConfig.readLogConfig().getLogPrefix();
+//		logPrefix = LogConfig.readLogConfig().getLogPrefix();
 		fst = new FileSubmitTracer();
 		
+		System.out.println(PropertyManager.getManager().syncFromServerToLocal());
 	}	
 	
 	public String getLogPrefix() {
@@ -170,6 +171,7 @@ public class LoggerProcess {
 		//If it is actual recording, transfer file to server automatically
 		//new Thread(new TransferThread()).start();
 		addTransferWork(current_time_str+".klg");
+		addTransferWork(current_time_str+".klg.rgb.jpg");
 //		addTransferWork("abcdefg"+".klg");
 //		addTransferWork("abcdefg"+".klg");
 //		addTransferWork("abcdefg"+".klg");
