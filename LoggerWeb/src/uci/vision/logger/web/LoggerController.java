@@ -18,12 +18,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.ServletContextAware;
 import org.springframework.web.servlet.ModelAndView;
 
+import uci.vision.logger.service.ConfigService;
 import uci.vision.logger.util.FileSubmitTracer;
 import uci.vision.logger.util.LoggerProcess;
+import uci.vision.logger.util.Misc;
 import uci.vision.logger.util.SerialComm;
 
 
-
+//#http://54.191.113.175:8080/LoggerServer/
 
 
 @Controller
@@ -56,7 +58,8 @@ public class LoggerController{
 	public LoggerController(){
 		System.out.println("INITIALIZE!");
 		serial.initialize();
-		
+		System.out.println("SERVER IP:"+Misc.getIPAddress());
+		ConfigService.syncValue("OdroidIP", Misc.getIPAddress());
 		//System.out.println(context.getRealPath("/"));
 	}
 

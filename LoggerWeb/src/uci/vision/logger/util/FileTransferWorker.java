@@ -26,6 +26,8 @@ public class FileTransferWorker implements Runnable{
 
 			curWork = transferQueue.poll();
 			curWork.uploadFile();
+			//if(curWork.getSrcName().endsWith("klg"))
+			LoggerProcess.transferFinished(curWork.getSrcName());
 			curWork = null;
 			//waitUntilFinished(curWork);
 			workSize--;

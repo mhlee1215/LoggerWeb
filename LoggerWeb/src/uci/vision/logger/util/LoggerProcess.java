@@ -9,9 +9,12 @@ import java.io.StringWriter;
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 
+import uci.vision.logger.domain.Constant;
 import uci.vision.logger.domain.LogConfig;
+import uci.vision.logger.domain.LogContent;
 
 public class LoggerProcess {
 	//String command = "~/cvLogger";
@@ -35,7 +38,7 @@ public class LoggerProcess {
 	boolean isInitialized  = false;
 	//boolean isTransferStarted = false;
 	
-	SimpleDateFormat time_formatter;
+	public static SimpleDateFormat time_formatter = new SimpleDateFormat("yyyy-MM-dd_HH_mm");
 	String current_time_str;
 	
 	
@@ -49,15 +52,24 @@ public class LoggerProcess {
 	private static FileSubmitTracer fst;
 	
 	public LoggerProcess(){
-		time_formatter = new SimpleDateFormat("yyyy-MM-dd_HH_mm");
+		//time_formatter = new SimpleDateFormat("yyyy-MM-dd_HH_mm");
 		
 		init();
 		log = "";
 		
-//		logPrefix = LogConfig.readLogConfig().getLogPrefix();
+		logPrefix = LogConfig.readLogConfig().getLogPrefix();
 		fst = new FileSubmitTracer();
+		PropertyManager.getManager().syncFromServerToLocal();
 		
-		System.out.println(PropertyManager.getManager().syncFromServerToLocal());
+		//When resume transfer.
+		if("Y".equals(LogConfig.readLogConfig().getTransferResumeOnStart())){
+			//
+			List<LogContent> nextList = fst.getNextList();
+			System.out.println("nextList: "+nextList);
+			for(LogContent lc : nextList){
+				transferToServer(lc);
+			}
+		}
 	}	
 	
 	public String getLogPrefix() {
@@ -167,9 +179,23 @@ public class LoggerProcess {
 		}
 	}
 	
+	public static void transferFinished(String srcName){
+		System.out.println("transferFinished:"+srcName);
+		fst.doFinish(new LogContent(srcName));
+	}
+	
+	public void transferToServer(LogContent lc){
+		System.out.println("TransferToServer:"+lc);
+		//fst.addWork(lc);
+		addTransferWork(lc.getFilename());
+		//addTransferWork(srcName+".rgb.jpg");
+	}
+	
 	public void transferToServer(){
 		//If it is actual recording, transfer file to server automatically
 		//new Thread(new TransferThread()).start();
+		fst.addWork(LogContent.getInstance(current_time_str+".klg", logPrefix, Constant.FILE_TYPE_LOG));
+		fst.addWork(LogContent.getInstance(current_time_str+".klg.rgb.jpg", logPrefix, Constant.FILE_TYPE_THUMBNAIL));
 		addTransferWork(current_time_str+".klg");
 		addTransferWork(current_time_str+".klg.rgb.jpg");
 //		addTransferWork("abcdefg"+".klg");

@@ -23,6 +23,7 @@ import com.google.gson.stream.JsonReader;
 import uci.vision.logger.domain.LogConfig;
 import uci.vision.logger.domain.LogContent;
 import uci.vision.logger.domain.LogContentBin;
+import uci.vision.logger.util.HttpThread;
 
 public class ContentService {
 	
@@ -68,35 +69,40 @@ public class ContentService {
 //			e1.printStackTrace();
 //		}
 //		
-		HttpClient httpclient = new DefaultHttpClient();
-		try {
-			String configHost = "http://localhost:8081/LoggerServer/";//LogConfig.readLogConfig().readLogConfig().getConfigHost();
-			HttpGet httpget = new HttpGet(configHost + "syncContents.do"+lc.serialize());
-
-			System.out.println("executing request " + httpget.getURI());
-
-			HttpResponse response = httpclient.execute(httpget);
-			HttpEntity entity = response.getEntity();
-
-			if (entity != null) {
-				BufferedReader rd = new BufferedReader(new InputStreamReader(
-						response.getEntity().getContent()));
-
-				String line = "";
-				while ((line = rd.readLine()) != null) {
-					return line;
-				}
-			}
-			httpget.abort();
-			httpclient.getConnectionManager().shutdown();
-
-		} catch (ClientProtocolException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			httpclient.getConnectionManager().shutdown();
-		}
+		
+		 String configHost = LogConfig.readLogConfig().readLogConfig().getConfigHost();
+	    //if(configHost.isEmpty()) configHost = DEFAULT_CONFIG_SERVER;
+	    new HttpThread(configHost + "syncContents.do"+lc.serialize()).start();
+		
+//		HttpClient httpclient = new DefaultHttpClient();
+//		try {
+//			String configHost = "http://localhost:8081/LoggerServer/";//LogConfig.readLogConfig().readLogConfig().getConfigHost();
+//			HttpGet httpget = new HttpGet(configHost + "syncContents.do"+lc.serialize());
+//
+//			System.out.println("executing request " + httpget.getURI());
+//
+//			HttpResponse response = httpclient.execute(httpget);
+//			HttpEntity entity = response.getEntity();
+//
+//			if (entity != null) {
+//				BufferedReader rd = new BufferedReader(new InputStreamReader(
+//						response.getEntity().getContent()));
+//
+//				String line = "";
+//				while ((line = rd.readLine()) != null) {
+//					return line;
+//				}
+//			}
+//			httpget.abort();
+//			httpclient.getConnectionManager().shutdown();
+//
+//		} catch (ClientProtocolException e) {
+//			e.printStackTrace();
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		} finally {
+//			httpclient.getConnectionManager().shutdown();
+//		}
 		return "";
 	}
 	

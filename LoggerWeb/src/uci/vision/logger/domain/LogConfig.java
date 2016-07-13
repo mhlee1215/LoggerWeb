@@ -15,8 +15,21 @@ public class LogConfig {
 	String recordAfterBoot;
 	String recordInterval;
 	String recordTimes;
+	String transferResumeOnStart;
 	
 	
+	public String getTransferResumeOnStart() {
+		return transferResumeOnStart;
+	}
+
+
+
+	public void setTransferResumeOnStart(String transferResumeOnStart) {
+		this.transferResumeOnStart = transferResumeOnStart;
+	}
+
+
+
 	public String getRecordAfterBoot() {
 		return recordAfterBoot;
 	}
@@ -122,7 +135,8 @@ public class LogConfig {
 		return "{\"logPrefix\":\"" + logPrefix + "\",\"ftpHost\":\"" + ftpHost + "\",\"ftpId\":\"" + ftpId
 				+ "\",\"ftpPwd\":\"" + ftpPwd + "\",\"ftpDst\":\"" + ftpDst + "\",\"configHost\":\"" + configHost
 				+ "\",\"recordAfterBoot\":\"" + recordAfterBoot + "\",\"recordInterval\":\"" + recordInterval
-				+ "\",\"recordTimes\":\"" + recordTimes + "\"}";
+				+ "\",\"recordTimes\":\"" + recordTimes + "\",\"transferResumeOnStart\":\"" + transferResumeOnStart
+				+ "\"}";
 	}
 	
 	public static void main(String[] args){

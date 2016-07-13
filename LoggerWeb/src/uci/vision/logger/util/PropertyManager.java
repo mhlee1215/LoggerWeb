@@ -31,7 +31,7 @@ public class PropertyManager {
  
 	public PropertyManager(){
 		URL r = this.getClass().getResource("/");
-		propActualPath = r.getPath()+".."+propFileName;
+		propActualPath = r.getPath()+"../.."+propFileName;
 	}
 	
 	public static PropertyManager getManager(){

@@ -18,6 +18,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 import uci.vision.logger.domain.LogConfig;
+import uci.vision.logger.util.HttpThread;
 
 public class ConfigService {
 	
@@ -64,49 +65,97 @@ public class ConfigService {
 		return "";
 	}
 	
+//	public static String syncValue(String key, String value){
+//
+//		String enKey="";
+//		String enValue = "";
+//		try {
+//			enKey = URLEncoder.encode(key, "UTF-8");
+//			enValue = URLEncoder.encode(value, "UTF-8");
+//		} catch (UnsupportedEncodingException e1) {
+//			// TODO Auto-generated catch block
+//			e1.printStackTrace();
+//		}
+//		
+//		HttpClient httpclient = new DefaultHttpClient();
+//		try {
+//			String configHost = LogConfig.readLogConfig().readLogConfig().getConfigHost();
+//			HttpGet httpget = new HttpGet(configHost + "syncValue.do?key="+ enKey+"&value="+enValue);
+//
+//			System.out.println("executing request " + httpget.getURI());
+//
+//			HttpResponse response = httpclient.execute(httpget);
+//			HttpEntity entity = response.getEntity();
+//
+//			if (entity != null) {
+//				BufferedReader rd = new BufferedReader(new InputStreamReader(
+//						response.getEntity().getContent()));
+//
+//				String line = "";
+//				while ((line = rd.readLine()) != null) {
+//					return line;
+//				}
+//			}
+//			httpget.abort();
+//			httpclient.getConnectionManager().shutdown();
+//
+//		} catch (ClientProtocolException e) {
+//			e.printStackTrace();
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		} finally {
+//			httpclient.getConnectionManager().shutdown();
+//		}
+//		return "";
+//	}
+	
 	public static String syncValue(String key, String value){
-
-		String enKey="";
-		String enValue = "";
-		try {
-			enKey = URLEncoder.encode(key, "UTF-8");
-			enValue = URLEncoder.encode(value, "UTF-8");
-		} catch (UnsupportedEncodingException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		
-		HttpClient httpclient = new DefaultHttpClient();
-		try {
-			String configHost = LogConfig.readLogConfig().readLogConfig().getConfigHost();
-			HttpGet httpget = new HttpGet(configHost + "syncValue.do?key="+ enKey+"&value="+enValue);
-
-			System.out.println("executing request " + httpget.getURI());
-
-			HttpResponse response = httpclient.execute(httpget);
-			HttpEntity entity = response.getEntity();
-
-			if (entity != null) {
-				BufferedReader rd = new BufferedReader(new InputStreamReader(
-						response.getEntity().getContent()));
-
-				String line = "";
-				while ((line = rd.readLine()) != null) {
-					return line;
-				}
-			}
-			httpget.abort();
-			httpclient.getConnectionManager().shutdown();
-
-		} catch (ClientProtocolException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			httpclient.getConnectionManager().shutdown();
-		}
-		return "";
-	}
+	    String enKey="";
+	    String enValue = "";
+	    try {
+	      enKey = URLEncoder.encode(key, "UTF-8");
+	      enValue = URLEncoder.encode(value, "UTF-8");
+	    } catch (UnsupportedEncodingException e1) {
+	      // TODO Auto-generated catch block
+	      e1.printStackTrace();
+	    }
+	    
+	    String configHost = LogConfig.readLogConfig().readLogConfig().getConfigHost();
+	    //if(configHost.isEmpty()) configHost = DEFAULT_CONFIG_SERVER;
+	    new HttpThread(configHost + "syncValue.do?key="+ enKey+"&value="+enValue).start();
+	    
+//	    HttpClient httpclient = new DefaultHttpClient();
+//	    try {
+//	      String configHost = LogConfig.readLogConfig().readLogConfig().getConfigHost();
+//	      HttpGet httpget = new HttpGet(configHost + "syncValue.do?key="+ enKey+"&value="+enValue);
+	//
+//	      System.out.println("executing request " + httpget.getURI());
+	//
+//	      HttpResponse response = httpclient.execute(httpget);
+//	      HttpEntity entity = response.getEntity();
+	//
+//	      if (entity != null) {
+//	        BufferedReader rd = new BufferedReader(new InputStreamReader(
+//	            response.getEntity().getContent()));
+	//
+//	        String line = "";
+//	        while ((line = rd.readLine()) != null) {
+//	          return line;
+//	        }
+//	      }
+//	      httpget.abort();
+//	      httpclient.getConnectionManager().shutdown();
+	//
+//	    } catch (ClientProtocolException e) {
+//	      e.printStackTrace();
+//	    } catch (IOException e) {
+//	      e.printStackTrace();
+//	    } finally {
+//	      httpclient.getConnectionManager().shutdown();
+//	    }
+	    return "";
+	  }
+	  
 	
 	public static void main(String[] args){
 		//System.out.println(UserService.getUsers());
@@ -126,3 +175,4 @@ public class ConfigService {
 	}
 
 }
+
