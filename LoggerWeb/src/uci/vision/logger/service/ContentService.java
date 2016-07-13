@@ -37,7 +37,7 @@ public class ContentService {
 		ArrayList<LogContent> logContent = null;
 		
 		try{
-			String configHost = "http://localhost:8081/LoggerServer/";//LogConfig.readLogConfig().readLogConfig().getConfigHost();
+			String configHost = LogConfig.readLogConfig().readLogConfig().getConfigHost();
 			System.out.println(configHost + "readContents.do" + lc.serialize(false));
 			InputStream in = new URL(configHost + "readContents.do"
 					+ lc.serialize())
