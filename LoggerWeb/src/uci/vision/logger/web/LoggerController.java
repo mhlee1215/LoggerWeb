@@ -593,7 +593,7 @@ public class LoggerController{
 			//System.out.println(context.getRealPath("/"));
 
 			loggerInit();
-//			waitUntilMotorSet();
+			waitUntilMotorSet();
 //			
 //			LogConfig lc = LogConfig.readLogConfig();
 //			if("Y".equalsIgnoreCase(lc.getRecordAfterBoot())){
