@@ -82,6 +82,7 @@ public class SerialComm implements SerialPortEventListener {
 	}
 	
 	public int initialize(int curPortIndex) {
+		System.out.println("INIT CALLLLL");
 		if(serialPort!= null){
 			System.out.println("Already Initalized");
 			return CONN_STATE_ALREADY_CONNECTED;
