@@ -13,8 +13,8 @@ public class LogConfig {
 	String ftpDst;
 	String configHost;
 	String recordAfterBoot;
-	String recordInterval;
-	String recordTimes;
+	//String recordInterval;
+	//String recordTimes;
 	String transferResumeOnStart;
 	String movePlan;
 	String logInterval;
@@ -71,27 +71,27 @@ public class LogConfig {
 
 
 
-	public String getRecordInterval() {
-		return recordInterval;
-	}
-
-
-
-	public void setRecordInterval(String recordInterval) {
-		this.recordInterval = recordInterval;
-	}
-
-
-
-	public String getRecordTimes() {
-		return recordTimes;
-	}
-
-
-
-	public void setRecordTimes(String recordTimes) {
-		this.recordTimes = recordTimes;
-	}
+//	public String getRecordInterval() {
+//		return recordInterval;
+//	}
+//
+//
+//
+//	public void setRecordInterval(String recordInterval) {
+//		this.recordInterval = recordInterval;
+//	}
+//
+//
+//
+//	public String getRecordTimes() {
+//		return recordTimes;
+//	}
+//
+//
+//
+//	public void setRecordTimes(String recordTimes) {
+//		this.recordTimes = recordTimes;
+//	}
 
 
 
@@ -163,10 +163,9 @@ public class LogConfig {
 	public String toString() {
 		return "{\"logPrefix\":\"" + logPrefix + "\",\"ftpHost\":\"" + ftpHost + "\",\"ftpId\":\"" + ftpId
 				+ "\",\"ftpPwd\":\"" + ftpPwd + "\",\"ftpDst\":\"" + ftpDst + "\",\"configHost\":\"" + configHost
-				+ "\",\"recordAfterBoot\":\"" + recordAfterBoot + "\",\"recordInterval\":\"" + recordInterval
-				+ "\",\"recordTimes\":\"" + recordTimes + "\",\"transferResumeOnStart\":\"" + transferResumeOnStart
-				+ "\",\"movePlan\":\"" + movePlan + "\",\"logInterval\":\"" + logInterval + "\",\"logTimes\":\""
-				+ logTimes + "\"}";
+				+ "\",\"recordAfterBoot\":\"" + recordAfterBoot + "\",\"transferResumeOnStart\":\""
+				+ transferResumeOnStart + "\",\"movePlan\":\"" + movePlan + "\",\"logInterval\":\"" + logInterval
+				+ "\",\"logTimes\":\"" + logTimes + "\"}";
 	}
 	
 	public static void main(String[] args){
