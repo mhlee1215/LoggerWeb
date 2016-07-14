@@ -5,17 +5,11 @@ import java.net.UnknownHostException;
 
 public class Misc {
 	public static String getIPAddress(){
-		InetAddress ip;
+		//InetAddress ip;
 		try {
-
-			ip = InetAddress.getLocalHost();
-			System.out.println("Current IP address : " + ip);
-			System.out.println("Current IP address : " + ip.getHostAddress());
-			return ip.getHostAddress();
+			return InetAddress.getLocalHost().getHostName();
 		} catch (UnknownHostException e) {
-
 			e.printStackTrace();
-
 		}
 
 		return "";

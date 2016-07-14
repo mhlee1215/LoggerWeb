@@ -1,5 +1,7 @@
 package uci.vision.logger.web;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.List;
 
 import javax.servlet.ServletContext;
@@ -72,6 +74,12 @@ public class LoggerController{
 //		if("Y".equalsIgnoreCase(lc.getRecordAfterBoot())){
 //			doPlannedAction(depthLogger);
 //		}
+		try {
+			System.out.println("HOSTNAME:"+InetAddress.getLocalHost().getHostName());
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		new InitThread().start();
 
 	}
@@ -606,17 +614,20 @@ public class LoggerController{
 			System.out.println("INITIALIZE!");
 			serial.initialize();
 			System.out.println("SERVER IP:"+Misc.getIPAddress());
-			ConfigService.syncValue("OdroidIP", Misc.getIPAddress());
+			if(!"DBH".equals(Misc.getIPAddress()))
+				ConfigService.syncValue("OdroidIP", Misc.getIPAddress());
 			//System.out.println(context.getRealPath("/"));
 
 			loggerInit();
-			waitUntilMotorSet();
+			
 //			
-			System.out.println("System Ready!");
+			
 			
 			LogConfig lc = LogConfig.readLogConfig();
 			if("Y".equalsIgnoreCase(lc.getRecordAfterBoot())){
-				int t = 3000;
+				waitUntilMotorSet();
+				System.out.println("System Ready!");
+				int t = 0;
 				System.out.println("START LOGGING! after "+(t/1000.0)+" sec.");
 				try {
 					Thread.sleep(t);

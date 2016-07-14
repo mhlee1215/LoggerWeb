@@ -104,6 +104,11 @@ public class FileTransfer{
 				}
 			}
 		}
+		if("Y".equalsIgnoreCase(LogConfig.readLogConfig().getDeleteAfterTransfer())){
+			if(uploadfile != null)
+				uploadfile.delete();
+		}
+			
 		return result;
 	}
 	

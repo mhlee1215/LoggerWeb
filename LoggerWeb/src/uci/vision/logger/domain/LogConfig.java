@@ -19,7 +19,14 @@ public class LogConfig {
 	String movePlan;
 	String logInterval;
 	String logTimes;
+	String deleteAfterTransfer;
 	
+	public String getDeleteAfterTransfer() {
+		return deleteAfterTransfer;
+	}
+	public void setDeleteAfterTransfer(String deleteAfterTransfer) {
+		this.deleteAfterTransfer = deleteAfterTransfer;
+	}
 	public String getMovePlan() {
 		return movePlan;
 	}
@@ -165,7 +172,7 @@ public class LogConfig {
 				+ "\",\"ftpPwd\":\"" + ftpPwd + "\",\"ftpDst\":\"" + ftpDst + "\",\"configHost\":\"" + configHost
 				+ "\",\"recordAfterBoot\":\"" + recordAfterBoot + "\",\"transferResumeOnStart\":\""
 				+ transferResumeOnStart + "\",\"movePlan\":\"" + movePlan + "\",\"logInterval\":\"" + logInterval
-				+ "\",\"logTimes\":\"" + logTimes + "\"}";
+				+ "\",\"logTimes\":\"" + logTimes + "\",\"deleteAfterTransfer\":\"" + deleteAfterTransfer + "\"}";
 	}
 	
 	public static void main(String[] args){
