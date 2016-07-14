@@ -104,11 +104,9 @@ public class LoggerController{
 
 			while(!log.contains(EMOTIMO_GREETING_MESSAGE)){
 				System.out.println("Still Not connected..");
-				Thread.sleep(1000);
-				//serial.flush();
+				Thread.sleep(2000);
+				serial.flush();
 				log = SerialComm.getLog();
-				//SerialComm.flushLog();
-
 			}
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
@@ -252,7 +250,21 @@ public class LoggerController{
 		String movePlan = depthLogger.getMovePlan();
 		
 		isPlannedLogProgress = true;
+		
+		System.out.println("====LOGGING STARTED=========");
+		System.out.println("Log Interval: "+logInterval);
+		System.out.println("Log Times: "+logTimes);
+		System.out.println("movePlan: "+movePlan);
+		System.out.println("============================");
 
+		serial.setPulse(1, 20000);
+		serial.setPulse(2, 20000);
+		
+		serial.moveToAndWait(1, 500);
+		serial.moveToAndWait(1, -500);
+		serial.moveToAndWait(1, 500);
+		serial.moveToAndWait(1, -500);
+		
 		try{
 
 			for (logCurTimes = 0 ; logCurTimes < logTimes ; logCurTimes++){
