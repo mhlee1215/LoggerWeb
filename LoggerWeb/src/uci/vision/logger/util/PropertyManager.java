@@ -39,7 +39,7 @@ public class PropertyManager {
 	}
 	
 	public LogConfig readConfig() {
-		LogConfig lc = new LogConfig();
+		LogConfig lc = null;//new LogConfig();
 		
 		InputStream inputStream = null;
 		try {
@@ -54,14 +54,16 @@ public class PropertyManager {
 				throw new FileNotFoundException("property file '" + propFileName + "' not found in the classpath");
 			}
  
+			lc = new LogConfig();
 			
 			for(Field f : LogConfig.class.getDeclaredFields()){
 				LogConfig.class.getDeclaredMethod("set"+uppercaseFirst(f.getName()), String.class).invoke(lc, prop.getProperty(f.getName()));
 			}
 	
 		} catch (Exception e) {
-			//System.out.println("Exception: " + e);
-			e.printStackTrace();
+			System.out.println("Property Not found. in PropertyManager.");
+			System.out.println("Exception: " + e);
+			//e.printStackTrace();
 		} finally {
 			if(inputStream != null)
 				try {
@@ -77,7 +79,7 @@ public class PropertyManager {
 	
 	public void writeConfig(LogConfig lc){
 		//LogConfig lc = new LogConfig();
-		
+		System.out.println("WRITE!!!??");
 		InputStream inputStream = null;
 		try {
 			Properties prop = new Properties();
@@ -120,6 +122,7 @@ public class PropertyManager {
 	
 	public LogConfig syncFromServerToLocal(){
 		LogConfig lc = new LogConfig();
+		
 		try {
 	        for(Field f : LogConfig.class.getDeclaredFields()){
 	        	String v = ConfigService.readValue(f.getName());
@@ -129,7 +132,10 @@ public class PropertyManager {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} 
-		writeConfig(lc);
+		System.out.println("WWWWWWW:"+lc);
+		writeConfig(lc);	
+		
+		
 		return lc;
 	}
 	

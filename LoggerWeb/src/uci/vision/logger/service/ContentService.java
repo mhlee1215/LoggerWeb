@@ -37,7 +37,8 @@ public class ContentService {
 		ArrayList<LogContent> logContent = null;
 		
 		try{
-			String configHost = LogConfig.readLogConfig().readLogConfig().getConfigHost();
+			String configHost = ConfigService.readHost();
+			
 			System.out.println(configHost + "readContents.do" + lc.serialize(false));
 			InputStream in = new URL(configHost + "readContents.do"
 					+ lc.serialize())

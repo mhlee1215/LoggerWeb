@@ -21,7 +21,14 @@ import uci.vision.logger.domain.LogConfig;
 import uci.vision.logger.util.HttpThread;
 
 public class ConfigService {
-	
+	public static String readHost(){
+		String configHost = "";
+		if(LogConfig.readLogConfig()==null || LogConfig.readLogConfig().getConfigHost()==null || LogConfig.readLogConfig().getConfigHost().isEmpty()) 
+			configHost = "http://mhlee-pc.ics.uci.edu:8081/LoggerServer/";
+		else 
+			configHost = LogConfig.readLogConfig().getConfigHost();
+		return configHost;
+	}
 	
 	public static String readValue(String key){
 
@@ -35,7 +42,8 @@ public class ConfigService {
 		
 		HttpClient httpclient = new DefaultHttpClient();
 		try {
-			String configHost = LogConfig.readLogConfig().readLogConfig().getConfigHost();
+			String configHost = readHost();
+			
 			HttpGet httpget = new HttpGet(configHost + "readValue.do?key="+ enKey);
 
 			System.out.println("executing request " + httpget.getURI());

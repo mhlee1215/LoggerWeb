@@ -34,8 +34,8 @@ public class LoggerController{
 
 	private Logger logger = Logger.getLogger(getClass());
 
-	private static SerialComm serial = new SerialComm();
-	private static LoggerProcess depthLogger = new LoggerProcess();
+	private static SerialComm serial = null;//new SerialComm();
+	private static LoggerProcess depthLogger = null;//new LoggerProcess();
 
 	public static final int LOG_INTERVAL_DEFAULT = 10;
 	public static final int LOG_TIMES_DEFAULT = 5;
@@ -59,19 +59,20 @@ public class LoggerController{
 	//    ServletContext context; 
 
 	public LoggerController(){
-		System.out.println("INITIALIZE!");
-		serial.initialize();
-		System.out.println("SERVER IP:"+Misc.getIPAddress());
-		ConfigService.syncValue("OdroidIP", Misc.getIPAddress());
-		//System.out.println(context.getRealPath("/"));
-
-		loggerInit();
-		waitUntilMotorSet();
-		
-		LogConfig lc = LogConfig.readLogConfig();
-		if("Y".equalsIgnoreCase(lc.getRecordAfterBoot())){
-			doPlannedAction(depthLogger);
-		}
+//		System.out.println("INITIALIZE!");
+//		serial.initialize();
+//		System.out.println("SERVER IP:"+Misc.getIPAddress());
+//		ConfigService.syncValue("OdroidIP", Misc.getIPAddress());
+//		//System.out.println(context.getRealPath("/"));
+//
+//		loggerInit();
+//		waitUntilMotorSet();
+//		
+//		LogConfig lc = LogConfig.readLogConfig();
+//		if("Y".equalsIgnoreCase(lc.getRecordAfterBoot())){
+//			doPlannedAction(depthLogger);
+//		}
+		new InitThread().start();
 
 	}
 
@@ -576,4 +577,30 @@ public class LoggerController{
 		SerialComm.flushLog();
 		return log;
 	}
+	
+	class InitThread extends Thread{
+		@Override
+		public void run() {
+			// TODO Auto-generated method stub
+			super.run();
+			
+			serial = new SerialComm();
+			depthLogger = new LoggerProcess();
+			System.out.println("INITIALIZE!");
+			serial.initialize();
+			System.out.println("SERVER IP:"+Misc.getIPAddress());
+			ConfigService.syncValue("OdroidIP", Misc.getIPAddress());
+			//System.out.println(context.getRealPath("/"));
+
+			loggerInit();
+			waitUntilMotorSet();
+			
+			LogConfig lc = LogConfig.readLogConfig();
+			if("Y".equalsIgnoreCase(lc.getRecordAfterBoot())){
+				doPlannedAction(depthLogger);
+			}
+		}
+	}
 }
+
+

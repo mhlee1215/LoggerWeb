@@ -71,9 +71,9 @@ public class LoggerProcess {
 		init();
 		log = "";
 		
-		
-		fst = new FileSubmitTracer();
 		loadConfig();
+		fst = new FileSubmitTracer();
+		
 	
 		//When resume transfer.
 		if("Y".equals(LogConfig.readLogConfig().getTransferResumeOnStart())){

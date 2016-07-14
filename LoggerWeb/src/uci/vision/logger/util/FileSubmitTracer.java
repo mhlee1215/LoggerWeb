@@ -62,11 +62,14 @@ public class FileSubmitTracer {
 	
 	public void syncFromServerToLocal(){
 		List<LogContent> lcList = ContentService.readContents();
+		if(lcList != null){
+			for(LogContent lc : lcList){
+				logMap.put(lc.getFilename(), lc);
+			}			
+		}
 //		System.out.println("BEFORE SYNC:"+lcList);
 //		System.out.println("BEFORE SYNC:"+logMap);
-		for(LogContent lc : lcList){
-			logMap.put(lc.getFilename(), lc);
-		}
+
 //		System.out.println("AFTER SYNC:"+lcList);
 //		System.out.println("AFTER SYNC:"+logMap);
 	}
