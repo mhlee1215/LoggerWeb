@@ -77,22 +77,22 @@ public class LoggerController{
 	}
 
 	public void waitUntilMotorSet(){
-		int serialInitResult = serial.initialize();
-
-		while(true){
-			if(serialInitResult == SerialComm.CONN_STATE_SUCCESS || serialInitResult == SerialComm.CONN_STATE_ALREADY_CONNECTED)
-				break;
-			else{
-				try {
-					System.out.println("Not connected..");
-					Thread.sleep(500);
-					serialInitResult = serial.initialize();
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		}
+//		int serialInitResult = serial.initialize();
+//
+//		while(true){
+//			if(serialInitResult == SerialComm.CONN_STATE_SUCCESS || serialInitResult == SerialComm.CONN_STATE_ALREADY_CONNECTED)
+//				break;
+//			else{
+//				try {
+//					System.out.println("Not connected..");
+//					Thread.sleep(500);
+//					serialInitResult = serial.initialize();
+//				} catch (InterruptedException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
+//			}
+//		}
 
 		
 		try {
