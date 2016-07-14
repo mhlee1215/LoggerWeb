@@ -196,6 +196,7 @@ public class FileSubmitTracer {
 		//logList.add(lc);
 		logMap.put(lc.getFilename(), lc);
 		writeList();
+		System.out.println(">>>>>>>>>>>>>>"+lc.toString());
 		ContentService.syncContents(lc);
 	}
 	

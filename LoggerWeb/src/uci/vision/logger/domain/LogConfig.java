@@ -16,8 +16,37 @@ public class LogConfig {
 	String recordInterval;
 	String recordTimes;
 	String transferResumeOnStart;
+	String movePlan;
+	String logInterval;
+	String logTimes;
 	
+	public String getMovePlan() {
+		return movePlan;
+	}
+	public void setMovePlan(String movePlan) {
+		this.movePlan = movePlan;
+	}
+	public int getLogIntervalInt() {
+		if(logInterval == null || logInterval.isEmpty()) return 0;
+		return Integer.parseInt(logInterval);
+	}
 	
+	public int getLogTimesInt() {
+		if(logTimes == null || logTimes.isEmpty()) return 0;
+		return Integer.parseInt(logTimes);
+	}
+	public String getLogInterval() {
+		return logInterval;
+	}
+	public void setLogInterval(String logInterval) {
+		this.logInterval = logInterval;
+	}
+	public String getLogTimes() {
+		return logTimes;
+	}
+	public void setLogTimes(String logTimes) {
+		this.logTimes = logTimes;
+	}
 	public String getTransferResumeOnStart() {
 		return transferResumeOnStart;
 	}
@@ -136,7 +165,8 @@ public class LogConfig {
 				+ "\",\"ftpPwd\":\"" + ftpPwd + "\",\"ftpDst\":\"" + ftpDst + "\",\"configHost\":\"" + configHost
 				+ "\",\"recordAfterBoot\":\"" + recordAfterBoot + "\",\"recordInterval\":\"" + recordInterval
 				+ "\",\"recordTimes\":\"" + recordTimes + "\",\"transferResumeOnStart\":\"" + transferResumeOnStart
-				+ "\"}";
+				+ "\",\"movePlan\":\"" + movePlan + "\",\"logInterval\":\"" + logInterval + "\",\"logTimes\":\""
+				+ logTimes + "\"}";
 	}
 	
 	public static void main(String[] args){

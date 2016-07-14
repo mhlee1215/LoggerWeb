@@ -51,7 +51,7 @@ public class LogContent implements Comparable<LogContent>{
 		lc.setFilename(filename);
 		lc.setTransmitted("N");
 		lc.setCategory(category);
-		lc.setDate(LoggerProcess.time_formatter.format(System.currentTimeMillis()));
+		lc.setDate(LoggerProcess.db_time_formatter.format(System.currentTimeMillis()));
 		lc.setIsvalid("Y");
 		lc.setType(type);
 		return lc;

@@ -39,6 +39,7 @@ public class LoggerProcess {
 	//boolean isTransferStarted = false;
 	
 	public static SimpleDateFormat time_formatter = new SimpleDateFormat("yyyy-MM-dd_HH_mm");
+	public static SimpleDateFormat db_time_formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	String current_time_str;
 	
 	
@@ -51,27 +52,58 @@ public class LoggerProcess {
 	Thread transferThread = null;
 	private static FileSubmitTracer fst;
 	
+	private int logInterval;
+	private int logTimes;
+	private String movePlan;
+	
+	public void loadConfig(){
+		PropertyManager.getManager().syncFromServerToLocal();
+		LogConfig lc = LogConfig.readLogConfig();
+		logPrefix = lc.getLogPrefix();
+		movePlan = lc.getMovePlan();
+		logInterval = lc.getLogIntervalInt();
+		logTimes = lc.getLogTimesInt();
+	}
+	
 	public LoggerProcess(){
 		//time_formatter = new SimpleDateFormat("yyyy-MM-dd_HH_mm");
 		
 		init();
 		log = "";
 		
-		logPrefix = LogConfig.readLogConfig().getLogPrefix();
-		fst = new FileSubmitTracer();
-		PropertyManager.getManager().syncFromServerToLocal();
 		
+		fst = new FileSubmitTracer();
+		loadConfig();
+	
 		//When resume transfer.
 		if("Y".equals(LogConfig.readLogConfig().getTransferResumeOnStart())){
 			//
 			List<LogContent> nextList = fst.getNextList();
 			System.out.println("nextList: "+nextList);
-			for(LogContent lc : nextList){
-				transferToServer(lc);
+			for(LogContent lc2 : nextList){
+				transferToServer(lc2);
 			}
 		}
 	}	
 	
+	public int getLogInterval() {
+		return logInterval;
+	}
+	public void setLogInterval(int logInterval) {
+		this.logInterval = logInterval;
+	}
+	public int getLogTimes() {
+		return logTimes;
+	}
+	public void setLogTimes(int logTimes) {
+		this.logTimes = logTimes;
+	}
+	public String getMovePlan() {
+		return movePlan;
+	}
+	public void setMovePlan(String movePlan) {
+		this.movePlan = movePlan;
+	}
 	public String getLogPrefix() {
 		return logPrefix;
 	}
@@ -267,7 +299,8 @@ public class LoggerProcess {
 	
 	public static void main(String[] args){
 		
-		
+		SimpleDateFormat db_time_formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		System.out.println(LoggerProcess.db_time_formatter.format(System.currentTimeMillis()));
 //		LoggerProcess lp = new LoggerProcess();
 //		lp.startLogger();
 //		
