@@ -608,14 +608,16 @@ public class LoggerController{
 		public void run() {
 			// TODO Auto-generated method stub
 			super.run();
+			System.out.println("SERVER IP:"+Misc.getIPAddress());
+			if(!"DBH".equals(Misc.getIPAddress()))
+				ConfigService.syncValue("OdroidIP", Misc.getIPAddress());
+			
 			
 			serial = new SerialComm();
 			depthLogger = new LoggerProcess();
 			System.out.println("INITIALIZE!");
 			serial.initialize();
-			System.out.println("SERVER IP:"+Misc.getIPAddress());
-			if(!"DBH".equals(Misc.getIPAddress()))
-				ConfigService.syncValue("OdroidIP", Misc.getIPAddress());
+			
 			//System.out.println(context.getRealPath("/"));
 
 			loggerInit();

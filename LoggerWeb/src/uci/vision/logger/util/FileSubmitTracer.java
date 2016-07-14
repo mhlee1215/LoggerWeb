@@ -164,7 +164,7 @@ public class FileSubmitTracer {
 			while ((thisLine = br.readLine()) != null) {
 				
 				LogContent lc = new LogContent();
-				System.out.println("thisLine:"+thisLine);
+				//System.out.println("thisLine:"+thisLine);
 				String[] parts = thisLine.split("\t");
 				if(parts.length < 7) continue;
 				
@@ -199,7 +199,7 @@ public class FileSubmitTracer {
 		//logList.add(lc);
 		logMap.put(lc.getFilename(), lc);
 		writeList();
-		System.out.println(">>>>>>>>>>>>>>"+lc.toString());
+		//System.out.println(">>>>>>>>>>>>>>"+lc.toString());
 		ContentService.syncContents(lc);
 	}
 	
@@ -224,13 +224,13 @@ public class FileSubmitTracer {
 	
 	public void doFinish(LogContent lc){
 		
-		System.out.println("BEFORE DO FINISH"+lc);
-		System.out.println("BEFORE DO FINISH"+logMap);
+//		System.out.println("BEFORE DO FINISH"+lc);
+//		System.out.println("BEFORE DO FINISH"+logMap);
 		LogContent lc2 = logMap.get(lc.getFilename());
 		lc2.setTransmitted("Y");
 		logMap.put(lc2.getFilename(), lc2);
-		System.out.println("AFTER DO FINISH"+lc);
-		System.out.println("AFTER DO FINISH"+logMap);
+//		System.out.println("AFTER DO FINISH"+lc);
+//		System.out.println("AFTER DO FINISH"+logMap);
 		
 //		logList.remove(lc);
 //		lc.setTransmitted("Y");
