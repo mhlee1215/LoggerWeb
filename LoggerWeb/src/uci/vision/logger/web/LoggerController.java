@@ -259,11 +259,10 @@ public class LoggerController{
 
 		serial.setPulse(1, 20000);
 		serial.setPulse(2, 20000);
-		
-		serial.moveToAndWait(1, 500);
-		serial.moveToAndWait(1, -500);
-		serial.moveToAndWait(1, 500);
-		serial.moveToAndWait(1, -500);
+		serial.moveToAndWait(1, 800);
+		serial.moveToAndWait(1, -800);
+		serial.moveToAndWait(1, 800);
+		serial.moveToAndWait(1, -800);
 		
 		try{
 
@@ -333,6 +332,8 @@ public class LoggerController{
 			return e.toString();
 		}
 
+		
+		
 		isPlannedLogProgress = false;
 
 		//Set to Origin
@@ -340,6 +341,10 @@ public class LoggerController{
 		serial.setPulse(2, 20000);
 		serial.moveToAndWait(1, 0);
 		serial.moveToAndWait(2, 0);
+		serial.moveToAndWait(1, 800);
+		serial.moveToAndWait(1, -800);
+		serial.moveToAndWait(1, 800);
+		serial.moveToAndWait(1, -800);
 
 		String log = depthLogger.getLog();
 		depthLogger.flushLog();
