@@ -4,6 +4,26 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
 public class Misc {
+	public static String getHostName(){
+		try {
+		       String line;
+		       Process p = Runtime.getRuntime().exec( "hostname" );
+
+		       BufferedReader in = new BufferedReader(
+		               new InputStreamReader(p.getInputStream()) );
+		       while ((line = in.readLine()) != null) {
+		         return line;
+		       }
+		       in.close();
+		     }
+		     catch (Exception e) {
+		       // ...
+		     }
+
+		return "";
+
+	}
+	
 	public static String getIPAddress(){
 		try {
 		       String line;
