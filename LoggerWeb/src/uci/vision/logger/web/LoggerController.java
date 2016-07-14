@@ -595,10 +595,20 @@ public class LoggerController{
 			loggerInit();
 			waitUntilMotorSet();
 //			
-//			LogConfig lc = LogConfig.readLogConfig();
-//			if("Y".equalsIgnoreCase(lc.getRecordAfterBoot())){
-//				doPlannedAction(depthLogger);
-//			}
+			System.out.println("System Ready!");
+			
+			LogConfig lc = LogConfig.readLogConfig();
+			if("Y".equalsIgnoreCase(lc.getRecordAfterBoot())){
+				int t = 3000;
+				System.out.println("START LOGGING! after "+(t/1000.0)+" sec.");
+				try {
+					Thread.sleep(t);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				doPlannedAction(depthLogger);
+			}
 		}
 	}
 }
