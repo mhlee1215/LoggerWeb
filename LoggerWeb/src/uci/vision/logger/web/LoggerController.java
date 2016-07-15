@@ -368,7 +368,7 @@ public class LoggerController{
 
 		depthLogger.setLogInterval(logInterval);
 		depthLogger.setLogTimes(logTimes);
-		depthLogger.setMovePlan(logPrefix);
+		depthLogger.setMovePlan(movePlan);
 		depthLogger.setLogPrefix(logPrefix);
 
 		return doPlannedAction(depthLogger);
