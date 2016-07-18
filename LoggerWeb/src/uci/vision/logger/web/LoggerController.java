@@ -364,6 +364,7 @@ public class LoggerController{
 		serial.moveToAndWait(1, -800);
 		serial.moveToAndWait(1, 800);
 		serial.moveToAndWait(1, -800);
+		serial.moveToAndWait(1, 0);
 
 		String log = depthLogger.getLog();
 		depthLogger.flushLog();
