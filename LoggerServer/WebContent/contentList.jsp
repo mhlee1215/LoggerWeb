@@ -155,13 +155,13 @@
             ${content.date}
           </td>
           <td class="text-left">
-            <img src="http://localhost/data/${content.filename}.rgb.jpg" width="150"></img>
+            <img src="http://mhlee-pc.ics.uci.edu/data/${content.filename}.rgb.jpg" width="150"></img>
           </td>
           <td class="text-left">
             <a href="javascript:openModal('http://mhlee-pc.ics.uci.edu//data/web/examples/${content.filename}.html', '${content.filename}');" target="blank">View Model</a>
           </td>
           <td class="text-left">
-            <a href="http://localhost/data/${content.filename}.ply" target="blank">Download</a>
+            <a href="http://mhlee-pc.ics.uci.edu/data/${content.filename}.ply" target="blank">Download</a>
           </td>
         </tr>
        </c:forEach>

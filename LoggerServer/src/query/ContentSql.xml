@@ -12,10 +12,11 @@
 		<result column="DATE" property="date" />
 		<result column="TRANSMITTED" property="transmitted" />
 		<result column="TYPE" property="type" />
+		<result column="MOVEPLAN" property="movePlan" />
  	</resultMap>
  	
  	<select id="readContents" resultMap="Content" parameterClass="uci.vision.logger.server.domain.LogContent">
- 		SELECT ID, FILENAME, CATEGORY, ISVALID, DATE, TRANSMITTED, TYPE
+ 		SELECT ID, FILENAME, CATEGORY, ISVALID, DATE, TRANSMITTED, TYPE, MOVEPLAN
  		FROM contentTable
  		where ID = ID
  		<isNotEmpty property="filename" prepend="and">
@@ -37,7 +38,7 @@
  	</select>
  	
  	<insert id="createContents" parameterClass="uci.vision.logger.server.domain.LogContent">
- 		INSERT INTO contentTable (FILENAME, CATEGORY, ISVALID, DATE, TRANSMITTED, TYPE) values(#filename#, #category#, #isvalid#, #date#, #transmitted#, #type#)
+ 		INSERT INTO contentTable (FILENAME, CATEGORY, ISVALID, DATE, TRANSMITTED, TYPE, MOVEPLAN) values(#filename#, #category#, #isvalid#, #date#, #transmitted#, #type#, #movePlan#)
  	</insert>
  	
  	<delete id="deleteContents" parameterClass="uci.vision.logger.server.domain.LogContent">
@@ -78,6 +79,9 @@
  		</isNotEmpty> 
  		<isNotEmpty property="type" prepend=",">
  		TYPE = #type#
+ 		</isNotEmpty>
+ 		<isNotEmpty property="movePlan" prepend=",">
+ 		MOVEPLAN = #movePlan#
  		</isNotEmpty>
  		where FILENAME = #filename#
  	</update>
