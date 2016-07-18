@@ -24,8 +24,17 @@ public class LogContent implements Comparable<LogContent>{
 	String date = "";
 	String transmitted = "";
 	String type = "";
+	String movePlan = "";
 	
 	
+	public String getMovePlan() {
+		return movePlan;
+	}
+
+	public void setMovePlan(String movePlan) {
+		this.movePlan = movePlan;
+	}
+
 	public String getType() {
 		return type;
 	}
@@ -43,10 +52,10 @@ public class LogContent implements Comparable<LogContent>{
 	}
 	
 	public static LogContent getInstance(String filename){
-		return getInstance(filename, "", "");
+		return getInstance(filename, "", "", "");
 	}
 	
-	public static LogContent getInstance(String filename, String category, String type){
+	public static LogContent getInstance(String filename, String category, String type, String movePlan){
 		LogContent lc = new LogContent();
 		lc.setFilename(filename);
 		lc.setTransmitted("N");
@@ -54,6 +63,7 @@ public class LogContent implements Comparable<LogContent>{
 		lc.setDate(LoggerProcess.db_time_formatter.format(System.currentTimeMillis()));
 		lc.setIsvalid("Y");
 		lc.setType(type);
+		lc.setMovePlan(movePlan);
 		return lc;
 	}
 	
@@ -98,11 +108,11 @@ public class LogContent implements Comparable<LogContent>{
 	public String toString() {
 		return "{\"id\":\"" + id + "\",\"filename\":\"" + filename + "\",\"category\":\"" + category
 				+ "\",\"isvalid\":\"" + isvalid + "\",\"date\":\"" + date + "\",\"transmitted\":\"" + transmitted
-				+ "\"}";
+				+ "\",\"type\":\"" + type + "\",\"movePlan\":\"" + movePlan + "\"}";
 	}
 	
 	public String toString(String delimeter){
-		return id+delimeter+filename+delimeter+category+delimeter+isvalid+delimeter+date+delimeter+transmitted+delimeter+type;
+		return id+delimeter+filename+delimeter+category+delimeter+isvalid+delimeter+date+delimeter+transmitted+delimeter+type+delimeter+movePlan;
 	}
 	
 	
@@ -127,23 +137,20 @@ public class LogContent implements Comparable<LogContent>{
 	}
 	
 	public String serialize(){
-		return serialize(true);
-	}
-	
-	public String serialize(boolean encode){
-		if(!encode) return "?filename="+filename+"&category="+category+"&isvalid="+isvalid+"&date="+date+"&transmitted="+transmitted+"&type="+type;
-		
 		String s = "";
 		try {
 			s = "?filename="+URLEncoder.encode(filename, "UTF-8")+"&category="+URLEncoder.encode(category, "UTF-8")+
-			"&isvalid="+URLEncoder.encode(isvalid, "UTF-8")+"&date="+URLEncoder.encode(date, "UTF-8")+"&transmitted="+URLEncoder.encode(transmitted, "UTF-8")+"&type="+URLEncoder.encode(type, "UTF-8");
+			"&isvalid="+URLEncoder.encode(isvalid, "UTF-8")+"&date="+URLEncoder.encode(date, "UTF-8")+
+			"&transmitted="+URLEncoder.encode(transmitted, "UTF-8")+"&type="+URLEncoder.encode(type, "UTF-8")+
+			"&movePlan="+URLEncoder.encode(movePlan, "UTF-8");
 		} catch (UnsupportedEncodingException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 		return s;
-		
 	}
+	
+
 	
 	
 	

@@ -14,6 +14,11 @@ sudo odroid-utility.sh<br>
 <h3>Install required libraries</h3>
 sudo apt-get update<br>
 sudo apt-get install -y git-core cmake freeglut3-dev pkg-config build-essential libxmu-dev libxi-dev libusb-1.0-0-dev libopencv-dev libboost-all-dev librxtx-java apache2 freenect openjdk-8-jdk<br> 
+<br>
+Install RxTx<br>
+cp librxtxSerial.jnilib /Library/java/Extensions/ (Mac OS) <br>
+cp librxtxSerial.so /usr/lib/jni/ (Linux) <br>
+
 
 <h3>Make LoggerHome</h3>
 cd ~<br>

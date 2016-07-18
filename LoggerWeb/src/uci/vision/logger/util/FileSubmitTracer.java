@@ -166,7 +166,7 @@ public class FileSubmitTracer {
 				LogContent lc = new LogContent();
 				//System.out.println("thisLine:"+thisLine);
 				String[] parts = thisLine.split("\t");
-				if(parts.length < 7) continue;
+				if(parts.length < LogContent.class.getDeclaredFields().length ) continue;
 				
 				int pIdx = 0;
 				for(Field f : LogContent.class.getDeclaredFields()){

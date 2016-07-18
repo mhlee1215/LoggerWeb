@@ -39,7 +39,7 @@ public class ContentService {
 		try{
 			String configHost = ConfigService.readHost();
 			
-			System.out.println(configHost + "readContents.do" + lc.serialize(false));
+			System.out.println(configHost + "readContents.do" + lc.serialize());
 			InputStream in = new URL(configHost + "readContents.do"
 					+ lc.serialize())
 					.openStream();

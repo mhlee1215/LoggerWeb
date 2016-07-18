@@ -368,7 +368,7 @@ public class LoggerController{
 
 		depthLogger.setLogInterval(logInterval);
 		depthLogger.setLogTimes(logTimes);
-		depthLogger.setMovePlan(logPrefix);
+		depthLogger.setMovePlan(movePlan);
 		depthLogger.setLogPrefix(logPrefix);
 
 		return doPlannedAction(depthLogger);
@@ -609,8 +609,7 @@ public class LoggerController{
 			// TODO Auto-generated method stub
 			super.run();
 			System.out.println("SERVER IP:"+Misc.getIPAddress());
-			if("odroid".equalsIgnoreCase(Misc.getHostName()))
-				ConfigService.syncValue("OdroidIP", Misc.getIPAddress());
+			ConfigService.syncValue(Misc.getHostName(), Misc.getIPAddress());
 			
 			
 			serial = new SerialComm();
