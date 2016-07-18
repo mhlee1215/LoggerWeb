@@ -32,7 +32,7 @@ public class SerialComm implements SerialPortEventListener {
 	static SerialPort serialPort = null;
         /** The port we're normally going to use. */
 	private static final String PORT_NAMES[] = { 
-			"/dev/tty.usbmodem142", // Mac OS X
+			"/dev/tty.usbmodem", // Mac OS X
                         "/dev/ttyACM", // Raspberry Pi
 			"/dev/ttyUSB0", // Linux
 			"COM3", // Windows
@@ -103,11 +103,17 @@ public class SerialComm implements SerialPortEventListener {
 		
 		//System.out.println(">>>>"+System.getProperty("java.library.path"));
 		
+		String deviceName = "";
 		if("Linux".equalsIgnoreCase(System.getProperty("os.name"))){
-			System.setProperty("gnu.io.rxtx.SerialPorts", "/dev/ttyACM"+curPortIndex);	
+			deviceName = "/dev/ttyACM"+curPortIndex;
+			//System.setProperty("gnu.io.rxtx.SerialPorts", deviceName);	
 		}else{
-			System.setProperty("gnu.io.rxtx.SerialPorts", "/dev/tty.usbmodem1421");	
+			deviceName = "/dev/tty.usbmodem14"+curPortIndex+"1";
+			//System.setProperty("gnu.io.rxtx.SerialPorts", "/dev/tty.usbmodem14"+curPortIndex+"1");	
 		}
+		
+		System.out.println("Trying to connect :"+deviceName);
+		System.setProperty("gnu.io.rxtx.SerialPorts", deviceName);
         
 
 		CommPortIdentifier portId = null;
