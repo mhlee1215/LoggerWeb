@@ -226,8 +226,8 @@ public class LoggerProcess {
 	public void transferToServer(){
 		//If it is actual recording, transfer file to server automatically
 		//new Thread(new TransferThread()).start();
-		fst.addWork(LogContent.getInstance(current_time_str+".klg", logPrefix, Constant.FILE_TYPE_LOG));
-		fst.addWork(LogContent.getInstance(current_time_str+".klg.rgb.jpg", logPrefix, Constant.FILE_TYPE_THUMBNAIL));
+		fst.addWork(LogContent.getInstance(current_time_str+".klg", logPrefix, Constant.FILE_TYPE_LOG, movePlan));
+		fst.addWork(LogContent.getInstance(current_time_str+".klg.rgb.jpg", logPrefix, Constant.FILE_TYPE_THUMBNAIL, movePlan));
 		addTransferWork(current_time_str+".klg");
 		addTransferWork(current_time_str+".klg.rgb.jpg");
 //		addTransferWork("abcdefg"+".klg");
