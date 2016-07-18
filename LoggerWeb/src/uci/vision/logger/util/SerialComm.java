@@ -32,7 +32,7 @@ public class SerialComm implements SerialPortEventListener {
 	static SerialPort serialPort = null;
         /** The port we're normally going to use. */
 	private static final String PORT_NAMES[] = { 
-			"/dev/tty.usbserial-A9007UX1", // Mac OS X
+			"/dev/tty.usbmodem142", // Mac OS X
                         "/dev/ttyACM", // Raspberry Pi
 			"/dev/ttyUSB0", // Linux
 			"COM3", // Windows
@@ -65,7 +65,12 @@ public class SerialComm implements SerialPortEventListener {
 	static String connPortName = "";
 	
 	public int initialize(){
-		System.setProperty( "java.library.path", "/usr/lib/jni" );
+		if("Linux".equalsIgnoreCase(System.getProperty("os.name"))){
+			System.setProperty( "java.library.path", "/usr/lib/jni" );	
+		}else{
+			System.setProperty( "java.library.path", "/Library/java/Extensions" );	
+		}
+		
 
 		Field fieldSysPath;
 		try {
@@ -97,7 +102,13 @@ public class SerialComm implements SerialPortEventListener {
 		
 		
 		//System.out.println(">>>>"+System.getProperty("java.library.path"));
-        System.setProperty("gnu.io.rxtx.SerialPorts", "/dev/ttyACM"+curPortIndex);
+		
+		if("Linux".equalsIgnoreCase(System.getProperty("os.name"))){
+			System.setProperty("gnu.io.rxtx.SerialPorts", "/dev/ttyACM"+curPortIndex);	
+		}else{
+			System.setProperty("gnu.io.rxtx.SerialPorts", "/dev/tty.usbmodem1421");	
+		}
+        
 
 		CommPortIdentifier portId = null;
 		Enumeration portEnum = CommPortIdentifier.getPortIdentifiers();
