@@ -2,6 +2,7 @@ package uci.vision.logger.web;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.ServletContext;
@@ -84,6 +85,10 @@ public class LoggerController{
 
 	}
 
+	public void period(){
+		
+	}
+	
 	public void waitUntilMotorSet(){
 //		int serialInitResult = serial.initialize();
 //
@@ -272,6 +277,11 @@ public class LoggerController{
 		serial.moveToAndWait(1, 800);
 		serial.moveToAndWait(1, -800);
 		
+		List<String> movePlanList = new ArrayList<String>();
+		movePlanList.add(movePlan);
+		movePlanList.add(movePlan.replace("80000", "40000"));
+		movePlanList.add(movePlan.replace("13000", "10000").replace("21000", "18000"));
+		
 		try{
 
 			for (logCurTimes = 0 ; logCurTimes < logTimes ; logCurTimes++){
@@ -281,58 +291,59 @@ public class LoggerController{
 
 				int[] pulse = new int[2];
 
-				String[] parts = movePlan.split(",");
+				for(String mp : movePlanList){
+					String[] parts = mp.split(",");
+					System.out.println("movePlan: "+mp);
+					System.out.println("parts.length : "+parts.length);
+					for(int j = 0 ; j < parts.length ; j++){
+						String mov = parts[j].trim();
 
-				System.out.println("movePlan: "+movePlan);
-				System.out.println("parts.length : "+parts.length);
-				for(int j = 0 ; j < parts.length ; j++){
-					String mov = parts[j].trim();
+						//First two is purse
+						if(j < 2){
+							int curPulse = Integer.parseInt(mov);
+							pulse[j] = curPulse;
 
-					//First two is purse
-					if(j < 2){
-						int curPulse = Integer.parseInt(mov);
-						pulse[j] = curPulse;
+							//serial.setPulse(j+1, pulse);
+							continue;
+						}
 
-						//serial.setPulse(j+1, pulse);
-						continue;
+						String[] subParts = mov.split(" ");
+						if(subParts.length != 2){
+							System.out.println("Move format error");
+							break;	
+						}
+						int motorIndex = Integer.parseInt(subParts[0]);
+						int motorToPos = Integer.parseInt(subParts[1]);
+						System.out.println(motorIndex+" "+motorToPos);
+
+						serial.moveToAndWait(motorIndex, motorToPos);
+
+						//When j is 0, 1 it is pulse setting
+						//When j is 2, 3 it is first pos setting
+						//When j is 4, it is starting point of logging.
+						if(j == 3){
+							boolean isPrerun = false;
+
+							serial.setPulse(1, pulse[0]);
+							serial.setPulse(2, pulse[1]);
+
+							depthLogger.startLogger(isPrerun);
+							Thread.sleep(2000);
+						}
 					}
 
-					String[] subParts = mov.split(" ");
-					if(subParts.length != 2){
-						System.out.println("Move format error");
-						break;	
-					}
-					int motorIndex = Integer.parseInt(subParts[0]);
-					int motorToPos = Integer.parseInt(subParts[1]);
-					System.out.println(motorIndex+" "+motorToPos);
 
-					serial.moveToAndWait(motorIndex, motorToPos);
-
-					//When j is 0, 1 it is pulse setting
-					//When j is 2, 3 it is first pos setting
-					//When j is 4, it is starting point of logging.
-					if(j == 3){
-						boolean isPrerun = false;
-
-						serial.setPulse(1, pulse[0]);
-						serial.setPulse(2, pulse[1]);
-
-						depthLogger.startLogger(isPrerun);
-						Thread.sleep(2000);
-					}
+					System.out.println("Logger stop!");
+					depthLogger.stopLogger();
+					Thread.sleep(2000);
+					//isTransferProgress = true;
+					depthLogger.transferToServer(mp);
 				}
-
-
-				System.out.println("Logger stop!");
-				depthLogger.stopLogger();
-				//isTransferProgress = true;
-				depthLogger.transferToServer();
-				//isTransferProgress = false;
-
+				
 				if( logCurTimes < logTimes-1 )
 					Thread.sleep(1000*logInterval*60);
-
-				//logCurTimes++;
+				
+				
 			}
 
 		}catch(Exception e){
@@ -358,6 +369,8 @@ public class LoggerController{
 		depthLogger.flushLog();
 		return log;
 	}
+	
+	
 
 	@RequestMapping("/doPlannedLogging.do")
 	public @ResponseBody String doPlannedLogging(HttpServletRequest request, HttpServletResponse response) throws Exception {
