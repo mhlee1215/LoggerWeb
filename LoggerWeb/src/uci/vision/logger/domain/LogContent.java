@@ -193,12 +193,11 @@ public class LogContent implements Comparable<LogContent>{
 	@Override
 	public int compareTo(LogContent o) {
 		// TODO Auto-generated method stub
-		if(id.isEmpty()) return 1;
-		else if(o.getId().isEmpty()) return 0;
-		else{
-			return Integer.parseInt(id) - Integer.parseInt(o.getId());	
-		}
-		
+		int a = 99999;
+		int b = 99999;
+		if(id!=null && !id.isEmpty()) a = Integer.parseInt(id);
+		if(o.getId()!=null && !o.getId().isEmpty()) b = Integer.parseInt(o.getId()); 
+		return a - b;
 	}
 	
 	
