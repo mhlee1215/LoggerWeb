@@ -11,6 +11,7 @@ import org.springframework.orm.ibatis.support.SqlMapClientDaoSupport;
 import org.springframework.stereotype.Repository;
 import com.ibatis.sqlmap.client.SqlMapClient;
 
+import uci.vision.logger.server.domain.Category;
 import uci.vision.logger.server.domain.LogContent;
 
 @Repository
@@ -22,6 +23,10 @@ public class LogContentDao extends SqlMapClientDaoSupport {
 	 } 
 	
 	
+	public List<Category> getCategory(LogContent logContent){
+		return (List<Category>)getSqlMapClientTemplate().queryForList("ContentSql.getCategory", logContent);
+	}
+	 
 	public List<LogContent> readContents(LogContent logContent) {
 		return (List<LogContent>)getSqlMapClientTemplate().queryForList("ContentSql.readContents", logContent);
 	}

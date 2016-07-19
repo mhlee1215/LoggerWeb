@@ -41,14 +41,5 @@
     <filter-name>Encoding Filter</filter-name>
     <url-pattern>/*</url-pattern>
   </filter-mapping>
-  
-  <filter>
-    <filter-name>cors</filter-name>
-    <filter-class>uci.vision.logger.server.domain.SimpleCORSFilter</filter-class>
-	</filter>
-	<filter-mapping>
-	    <filter-name>cors</filter-name>
-	    <url-pattern>/*</url-pattern>
-	</filter-mapping>
-  
+ 
 </web-app>

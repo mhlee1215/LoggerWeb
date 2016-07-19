@@ -11,10 +11,12 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
+import uci.vision.logger.server.domain.Category;
 import uci.vision.logger.server.domain.Constant;
 import uci.vision.logger.server.domain.LogContent;
 import uci.vision.logger.server.service.LogContentService;
@@ -84,6 +86,8 @@ public class ContentController {
 	
 	@RequestMapping("/index.do")
     public ModelAndView logout(HttpServletRequest request, HttpServletResponse response) {
+		String isAdmin = ServletRequestUtils.getStringParameter(request, "isAdmin", "");
+		
 		LogContent lc = LogContent.readFromRequest(request);
 		
 		lc.setIsvalid("Y");
@@ -93,8 +97,37 @@ public class ContentController {
 		System.out.println("LC:"+lc);
 		List<LogContent> lcList = logContentService.readContents(lc);
 		
+		List<Category> cat = logContentService.getCategory(lc);
+		
 		ModelAndView model = new ModelAndView("contentList");
 		model.addObject("contentList", lcList);
+		model.addObject("cat", cat);
+		model.addObject("isAdmin", isAdmin);
+		model.addObject("cur_cat", lc.getCategory());
+		return model;
+    }
+	
+	@RequestMapping("/remove.do")
+    public ModelAndView remove(HttpServletRequest request, HttpServletResponse response) {
+		String isAdmin = ServletRequestUtils.getStringParameter(request, "isAdmin", "");
+		LogContent lc = LogContent.readFromRequest(request);
+		
+		logContentService.removeContents(lc);
+		
+		lc.setIsvalid("Y");
+		lc.setTransmitted("Y");
+		lc.setType(Constant.FILE_TYPE_LOG);
+		
+		System.out.println("LC:"+lc);
+		List<LogContent> lcList = logContentService.readContents(lc);
+		
+		List<Category> cat = logContentService.getCategory(lc);
+		
+		ModelAndView model = new ModelAndView("redirect:index.do");
+		model.addObject("contentList", lcList);
+		model.addObject("cat", cat);
+		model.addObject("isAdmin", isAdmin);
+		model.addObject("cur_cat", lc.getCategory());
 		return model;
     }
 }

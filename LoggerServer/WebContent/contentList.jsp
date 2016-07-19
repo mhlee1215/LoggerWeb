@@ -120,6 +120,19 @@
     $( ".selector" ).dialog( "option", "position", { my: "center", at: "center", of: button } );
     */
   }
+  
+  function reload(cat){
+	  window.location = 'index.do?category='+cat;
+  }
+  
+  function remove(name){
+	  var r = confirm("Delete "+name);
+	  if (r == true) {
+		  window.location = 'remove.do?isAdmin=${isAdmin}&category=${cur_cat}&filename='+name;
+	  } else {
+	  }
+	  
+  }
 
   
   
@@ -128,21 +141,32 @@
 <body>
 <div id="wrapper">
   <div class="table-title">
-  <h3>UCI 3D Indoor Dataset</h3>
+  <h3><a href="index.do" style="text-decoration:none">UCI 3D Indoor Dataset</a></h3>
   </div>
-  
   <table class="table-fill">
     <thead>
     <tr>
-    <th class="text-left">Name</th>
-    <th class="text-left">Category</th>
+    <th class="text-left" width="200px">Name</th>
+    <th class="text-left">Category
+    
+    <select onchange="javascript:reload(this.value)">
+    	<option ${"" == cur_cat ? "selected" : "" } value="">All</option>
+    	<c:forEach items="${cat}" var="c" varStatus="list_status">
+	  	<option ${c.category == cur_cat ? "selected" : "" } value="${c.category}">${c.category} (${c.size})</option>
+	  	</c:forEach>
+	</select>
+    </th>
     <th class="text-left">Date</th>
     <th class="text-left">Thumb nail</th>
     <th class="text-left">View Link</th>
     <th class="text-left">Download Link</th>
+    <c:if test="${isAdmin == 'Y' }">
+    <th class="text-left">Delete</th>
+    </c:if>
     </tr>
     </thead>
     <tbody class="table-hover">
+
      <c:forEach items="${contentList}" var="content" varStatus="list_status">
         <tr>
           <td class="text-left">
@@ -155,14 +179,19 @@
             ${content.date}
           </td>
           <td class="text-left">
-            <img src="http://mhlee-pc.ics.uci.edu/data/${content.filename}.rgb.jpg" width="150"></img>
+            <img src="http://mhlee-pc.ics.uci.edu/data/complete/${content.filename}.rgb.jpg" width="150"></img>
           </td>
           <td class="text-left">
             <a href="javascript:openModal('http://mhlee-pc.ics.uci.edu//data/web/examples/${content.filename}.html', '${content.filename}');" target="blank">View Model</a>
           </td>
           <td class="text-left">
-            <a href="http://mhlee-pc.ics.uci.edu/data/${content.filename}.ply" target="blank">Download</a>
+            <a href="http://mhlee-pc.ics.uci.edu/data/complete/${content.filename}.ply" target="blank">Download</a>
           </td>
+          <c:if test="${isAdmin == 'Y' }">
+          <td class="text-left">
+            <a href="javascript:remove('${content.filename}');" target="blank">Delete</a>
+          </td>
+          </c:if>
         </tr>
        </c:forEach>
        </tbody>

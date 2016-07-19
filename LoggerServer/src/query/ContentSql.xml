@@ -15,6 +15,28 @@
 		<result column="MOVEPLAN" property="movePlan" />
  	</resultMap>
  	
+ 	<resultMap id="Category" class="uci.vision.logger.server.domain.Category">
+		<result column="CATEGORY" property="category" />
+		<result column="SIZE" property="size" />
+ 	</resultMap>
+ 	
+ 	<select id="getCategory" resultMap="Category" 
+ 						parameterClass="uci.vision.logger.server.domain.LogContent">
+ 		SELECT CATEGORY, count(CATEGORY) SIZE
+ 		FROM contentTable
+ 		WHERE ID = ID
+ 		<isNotEmpty property="isvalid" prepend="and">
+ 		ISVALID = #isvalid#
+ 		</isNotEmpty>
+ 		<isNotEmpty property="transmitted" prepend="and">
+ 		TRANSMITTED = #transmitted#
+ 		</isNotEmpty>
+ 		<isNotEmpty property="type" prepend="and">
+ 		TYPE = #type#
+ 		</isNotEmpty>
+ 		 group by CATEGORY
+ 	</select>
+ 	
  	<select id="readContents" resultMap="Content" parameterClass="uci.vision.logger.server.domain.LogContent">
  		SELECT ID, FILENAME, CATEGORY, ISVALID, DATE, TRANSMITTED, TYPE, MOVEPLAN
  		FROM contentTable
@@ -34,6 +56,7 @@
  		<isNotEmpty property="type" prepend="and">
  		TYPE = #type#
  		</isNotEmpty>
+ 		ORDER BY ID DESC
  		
  	</select>
  	
