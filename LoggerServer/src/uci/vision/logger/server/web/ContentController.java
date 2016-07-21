@@ -130,4 +130,40 @@ public class ContentController {
 		model.addObject("cur_cat", lc.getCategory());
 		return model;
     }
+	
+	@RequestMapping("/changeCategory.do")
+    public ModelAndView changeCategory(HttpServletRequest request, HttpServletResponse response) {
+		String isAdmin = ServletRequestUtils.getStringParameter(request, "isAdmin", "");
+		LogContent lc = LogContent.readFromRequest(request);
+		String toCategory = ServletRequestUtils.getStringParameter(request, "toCategory", "");
+		
+		logContentService.changeCategory(lc.getFilename(), toCategory);
+	
+		ModelAndView model = new ModelAndView("redirect:index.do");
+		return model;
+    }
+	
+	@RequestMapping("/undoEF.do")
+    public ModelAndView undoEF(HttpServletRequest request, HttpServletResponse response) {
+		String isAdmin = ServletRequestUtils.getStringParameter(request, "isAdmin", "");
+		LogContent lc = LogContent.readFromRequest(request);
+		
+//		logContentService.removeContents(lc);
+		
+		lc.setIsvalid("Y");
+		lc.setTransmitted("Y");
+		lc.setType(Constant.FILE_TYPE_LOG);
+		
+		System.out.println("LC:"+lc);
+		List<LogContent> lcList = logContentService.readContents(lc);
+		
+		List<Category> cat = logContentService.getCategory(lc);
+		
+		ModelAndView model = new ModelAndView("redirect:index.do");
+		model.addObject("contentList", lcList);
+		model.addObject("cat", cat);
+		model.addObject("isAdmin", isAdmin);
+		model.addObject("cur_cat", lc.getCategory());
+		return model;
+    }
 }

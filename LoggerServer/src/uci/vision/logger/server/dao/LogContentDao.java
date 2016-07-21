@@ -27,6 +27,10 @@ public class LogContentDao extends SqlMapClientDaoSupport {
 		return (List<Category>)getSqlMapClientTemplate().queryForList("ContentSql.getCategory", logContent);
 	}
 	 
+	public LogContent readContent(LogContent logContent) {
+		return (LogContent)getSqlMapClientTemplate().queryForObject("ContentSql.readContent", logContent);
+	}
+	
 	public List<LogContent> readContents(LogContent logContent) {
 		return (List<LogContent>)getSqlMapClientTemplate().queryForList("ContentSql.readContents", logContent);
 	}

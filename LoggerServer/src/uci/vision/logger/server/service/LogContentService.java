@@ -8,7 +8,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-
+ 
 import org.apache.commons.mail.EmailException;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +34,13 @@ public class LogContentService  {
 	public List<Category> getCategory(LogContent logContent){
 		return logContentDao.getCategory(logContent);
 	}
+	
+	public LogContent readContent(LogContent logContent){
+		LogContent c = logContentDao.readContent(logContent);
+		
+		return c;
+	}
+	
 	
 	public List<LogContent> readContents(LogContent logContent){
 		List<LogContent> c = logContentDao.readContents(logContent);
@@ -108,7 +115,85 @@ public class LogContentService  {
 		if(f.exists()){
 			System.out.println("Move from :"+fromName+", to "+toName);
 			f.renameTo(new File(toName));
+		}else{
+			System.out.println("Move file "+fromName+" not exist.");
 		}
+	}
+	
+	public void undoFile(String name){
+		String curName = name;
+		String fromName = Constant.complete_home+curName;
+		String toName = Constant.data_home+curName;
+		File f = new File (fromName);
+		if(f.exists()){
+			System.out.println("Move from :"+fromName+", to "+toName);
+			f.renameTo(new File(toName));
+		}else{
+			System.out.println("Move file "+name+" not exist.");
+		}
+	}
+	
+ 
+	public void deleteFile(String name){
+		File f = new File (name);
+		if(f.exists()){
+			System.out.println("Delete "+name);
+			f.delete();
+		}else{
+			System.out.println("Delete file "+name+" not exist.");
+		}
+	}
+	
+	public void deletePotreeWebFile(String name){
+		deleteFile(name+".html");
+		deleteFile(name+".js");
+	}
+	
+	
+	
+	public void renameFile(String nameFrom, String nameTo){
+		String fromName = Constant.complete_home+nameFrom;
+		String toName = Constant.complete_home+nameTo;
+		File f = new File (fromName);
+		if(f.exists()){
+			System.out.println("Move from :"+fromName+", to "+toName);
+			f.renameTo(new File(toName));
+		}else{
+			System.out.println("Move file "+fromName+" not exist.");
+		}
+	}
+	
+	public void changeCategory(String fileName, String toCategory){
+		LogContent lcParam = new LogContent(fileName);
+		LogContent lc = logContentDao.readContent(lcParam);
+		
+		changeName(fileName, fileName.replace(lc.getCategory(), toCategory));
+		
+		LogContent lc2 = new LogContent();
+		lc2.setId(lc.getId());
+		lc2.setCategory(toCategory);
+		logContentDao.updateContents(lc2);
+	}
+	
+	public void changeName(String nameFrom, String nameTo){
+		LogContent lcParam = new LogContent(nameFrom);
+		LogContent lc = logContentDao.readContent(lcParam);
+		
+		LogContent lcParam2 = new LogContent(nameTo);
+		lcParam2.setId(lc.getId());
+		logContentDao.updateContents(lcParam2);
+		
+		renameFile(nameFrom, nameTo);
+		undoFile(nameTo);
+		renameFile(nameFrom+".ply", nameTo+".ply");
+		undoFile(nameTo+".ply");
+		renameFile(nameFrom+".rgb.jpg", nameTo+".rgb.jpg");
+		undoFile(nameTo+".rgb.jpg");
+		renameFile(nameFrom+".freiburg", nameTo+".freiburg");
+		undoFile(nameTo+".freiburg");
+		
+		
+		
 	}
 	
 }

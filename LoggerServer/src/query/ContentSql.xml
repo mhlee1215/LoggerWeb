@@ -57,7 +57,19 @@
  		TYPE = #type#
  		</isNotEmpty>
  		ORDER BY ID DESC
- 		
+ 	</select>
+ 	
+ 	<select id="readContent" resultClass="uci.vision.logger.server.domain.LogContent" parameterClass="uci.vision.logger.server.domain.LogContent">
+ 		SELECT ID, FILENAME, CATEGORY, ISVALID, DATE, TRANSMITTED, TYPE, MOVEPLAN
+ 		FROM contentTable
+ 		where ID = ID
+ 		<isNotEmpty property="id" prepend="and">
+ 		ID = #id#
+ 		</isNotEmpty>
+ 		<isNotEmpty property="filename" prepend="and">
+ 		FILENAME = #filename#
+ 		</isNotEmpty> 
+ 		ORDER BY ID DESC
  	</select>
  	
  	<insert id="createContents" parameterClass="uci.vision.logger.server.domain.LogContent">
@@ -106,7 +118,13 @@
  		<isNotEmpty property="movePlan" prepend=",">
  		MOVEPLAN = #movePlan#
  		</isNotEmpty>
- 		where FILENAME = #filename#
+ 		where 
+ 		<isNotEmpty property="id">
+ 			ID = #id#
+ 		</isNotEmpty>
+ 		<isEmpty property="id">
+ 			FILENAME = #filename#
+ 		</isEmpty>
  	</update>
 
 </sqlMap>

@@ -133,6 +133,15 @@
 	  }
 	  
   }
+  
+  function changeCategory(filename, toCategory){
+	  var r = confirm("Change category "+filename+' to '+toCategory);
+	  if (r == true) {
+		  window.location = 'changeCategory.do?isAdmin=${isAdmin}&toCategory='+toCategory+'&filename='+filename;
+	  } else {
+	  }
+	  
+  }
 
   
   
@@ -174,6 +183,13 @@
           </td>
           <td class="text-left">
             ${content.category}
+            <c:if test="${isAdmin == 'Y' }">
+            <select onchange="javascript:changeCategory('${content.filename}', this.value)">
+		    	<c:forEach items="${cat}" var="c" varStatus="list_status">
+			  	<option ${c.category == content.category ? "selected" : "" } value="${c.category}">${c.category}</option>
+			  	</c:forEach>
+			</select>
+            </c:if>
           </td>
           <td class="text-left">
             ${content.date}
