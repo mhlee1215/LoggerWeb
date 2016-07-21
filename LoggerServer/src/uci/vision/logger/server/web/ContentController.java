@@ -69,11 +69,11 @@ public class ContentController {
 		System.out.println("SYNC LC:"+lc);
 		LogContent lcp = new LogContent();
 		lcp.setFilename(lc.getFilename());
-		List<LogContent> v = logContentService.readContents(lcp);
+		LogContent v = logContentService.readContent(lcp);
 		System.out.println("VV:"+v);
 		//If there is no key/value
 		//Then, add
-		if(v == null || v.size() == 0){
+		if(v == null){
 			logContentService.createContents(lc);
 		}
 		//Otherwise, update
