@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 import com.ibatis.sqlmap.client.SqlMapClient;
 
 import uci.vision.logger.server.domain.Category;
+import uci.vision.logger.server.domain.Date;
 import uci.vision.logger.server.domain.LogContent;
 
 @Repository
@@ -25,6 +26,10 @@ public class LogContentDao extends SqlMapClientDaoSupport {
 	
 	public List<Category> getCategory(LogContent logContent){
 		return (List<Category>)getSqlMapClientTemplate().queryForList("ContentSql.getCategory", logContent);
+	}
+	
+	public List<Date> getDate(LogContent logContent){
+		return (List<Date>)getSqlMapClientTemplate().queryForList("ContentSql.getDate", logContent);
 	}
 	 
 	public LogContent readContent(LogContent logContent) {

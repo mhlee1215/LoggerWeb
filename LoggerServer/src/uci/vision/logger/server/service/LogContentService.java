@@ -19,6 +19,7 @@ import uci.vision.logger.server.dao.LogConfigDao;
 import uci.vision.logger.server.dao.LogContentDao;
 import uci.vision.logger.server.domain.Category;
 import uci.vision.logger.server.domain.Constant;
+import uci.vision.logger.server.domain.Date;
 import uci.vision.logger.server.domain.LogContent;
 
 
@@ -35,6 +36,10 @@ public class LogContentService  {
 		return logContentDao.getCategory(logContent);
 	}
 	
+	public List<Date> getDate(LogContent logContent){
+		return logContentDao.getDate(logContent);
+	}
+	
 	public LogContent readContent(LogContent logContent){
 		LogContent c = logContentDao.readContent(logContent);
 		
@@ -42,7 +47,7 @@ public class LogContentService  {
 	}
 	
 	
-	public List<LogContent> readContents(LogContent logContent){
+	public List<LogContent> readContentsForWeb(LogContent logContent){
 		List<LogContent> c = logContentDao.readContents(logContent);
 		List<LogContent> c2 = new ArrayList<LogContent>();
 		for(LogContent cc : c){
@@ -62,6 +67,13 @@ public class LogContentService  {
 		return c2;
 	}
 	
+	public List<LogContent> readContents(LogContent logContent){
+		List<LogContent> c = logContentDao.readContents(logContent);
+		List<LogContent> c2 = new ArrayList<LogContent>();
+		
+		return c;
+	}
+	
 	public void createContents(LogContent logContent){
 		logContentDao.createContents(logContent);
 	}
@@ -79,38 +91,25 @@ public class LogContentService  {
 		logContent.setIsvalid("N");
 		logContentDao.updateContents(logContent);
 		
-		moveFile(logContent.getFilename());
-		moveFile(logContent.getFilename()+".ply");
-		moveFile(logContent.getFilename()+".freiburg");
-		moveFile(logContent.getFilename()+".rgb.jpg");
-		
-		
-		
-//		String command = "mv "+Constant.data_home+logContent.getFilename()+"*"+" "+Constant.data_home+"trash/";
-//		System.out.println("COMMAND: "+command);
-//		
-//		
-//		
-//		try {
-//		       String line;
-//		       Process p = Runtime.getRuntime().exec(command);
-//
-//		       BufferedReader in = new BufferedReader(
-//		               new InputStreamReader(p.getInputStream()) );
-//		       while ((line = in.readLine()) != null) {
-//		         System.out.println("OUTPUT: "+line);
-//		       }
-//		       in.close();
-//		     }
-//		     catch (Exception e) {
-//		       // ...
-//		     }
+		trashFile(logContent.getFilename());
+		trashFile(logContent.getFilename()+".ply");
+		trashFile(logContent.getFilename()+".freiburg");
+		trashFile(logContent.getFilename()+".rgb.jpg");
+		deletePotreeWebFile(logContent.getFilename());
 	}
 	
-	public void moveFile(String name){
+	public void undoContents(LogContent logContent){	
+		undoFile(logContent.getFilename());
+		undoFile(logContent.getFilename()+".ply");
+		undoFile(logContent.getFilename()+".freiburg");
+		undoFile(logContent.getFilename()+".rgb.jpg");
+		deletePotreeWebFile(logContent.getFilename());
+	}
+	
+	public void moveFile(String name, String folderFrom, String folderTo){
 		String curName = name;
-		String fromName = Constant.complete_home+curName;
-		String toName = Constant.trash_home+curName;
+		String fromName = folderFrom+curName;
+		String toName = folderTo+curName;
 		File f = new File (fromName);
 		if(f.exists()){
 			System.out.println("Move from :"+fromName+", to "+toName);
@@ -120,17 +119,12 @@ public class LogContentService  {
 		}
 	}
 	
+	public void trashFile(String name){
+		moveFile(name, Constant.complete_home, Constant.trash_home);
+	}
+	
 	public void undoFile(String name){
-		String curName = name;
-		String fromName = Constant.complete_home+curName;
-		String toName = Constant.data_home+curName;
-		File f = new File (fromName);
-		if(f.exists()){
-			System.out.println("Move from :"+fromName+", to "+toName);
-			f.renameTo(new File(toName));
-		}else{
-			System.out.println("Move file "+name+" not exist.");
-		}
+		moveFile(name, Constant.complete_home, Constant.data_home);
 	}
 	
  
@@ -145,8 +139,8 @@ public class LogContentService  {
 	}
 	
 	public void deletePotreeWebFile(String name){
-		deleteFile(name+".html");
-		deleteFile(name+".js");
+		deleteFile(Constant.potree_home+name+".html");
+		deleteFile(Constant.potree_home+name+".js");
 	}
 	
 	

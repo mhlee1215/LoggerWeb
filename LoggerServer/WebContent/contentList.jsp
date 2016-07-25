@@ -125,10 +125,23 @@
 	  window.location = 'index.do?category='+cat;
   }
   
+  function reloadByDate(date){
+	  window.location = 'index.do?category=${cur_cat}&date='+date;
+  }
+  
   function remove(name){
 	  var r = confirm("Delete "+name);
 	  if (r == true) {
-		  window.location = 'remove.do?isAdmin=${isAdmin}&category=${cur_cat}&filename='+name;
+		  window.location = 'remove.do?category=${cur_cat}&filename='+name;
+	  } else {
+	  }
+	  
+  }
+  
+  function undo(name){
+	  var r = confirm("Undo "+name);
+	  if (r == true) {
+		  window.location = 'undoEF.do?category=${cur_cat}&filename='+name;
 	  } else {
 	  }
 	  
@@ -137,7 +150,7 @@
   function changeCategory(filename, toCategory){
 	  var r = confirm("Change category "+filename+' to '+toCategory);
 	  if (r == true) {
-		  window.location = 'changeCategory.do?isAdmin=${isAdmin}&toCategory='+toCategory+'&filename='+filename;
+		  window.location = 'changeCategory.do?toCategory='+toCategory+'&filename='+filename;
 	  } else {
 	  }
 	  
@@ -152,6 +165,11 @@
   <div class="table-title">
   <h3><a href="index.do" style="text-decoration:none">UCI 3D Indoor Dataset</a></h3>
   </div>
+  <c:if test="${isAdmin == 'Y' }">
+  <div align="right">
+  <a href="logout.do">logout</a>
+  </div>
+  </c:if>
   <table class="table-fill">
     <thead>
     <tr>
@@ -165,12 +183,22 @@
 	  	</c:forEach>
 	</select>
     </th>
-    <th class="text-left">Date</th>
+    <th class="text-left">Date
+    
+    <select onchange="javascript:reloadByDate(this.value)">
+    	<option ${"" == cur_date ? "selected" : "" } value="">All</option>
+    	<c:forEach items="${date}" var="d" varStatus="list_status">
+	  	<option ${d.date == cur_date ? "selected" : "" } value="${d.date}">${d.date} (${d.size})</option>
+	  	</c:forEach>
+	</select>
+    
+    </th>
     <th class="text-left">Thumb nail</th>
     <th class="text-left">View Link</th>
     <th class="text-left">Download Link</th>
     <c:if test="${isAdmin == 'Y' }">
     <th class="text-left">Delete</th>
+    <th class="text-left">Undo</th>
     </c:if>
     </tr>
     </thead>
@@ -206,6 +234,9 @@
           <c:if test="${isAdmin == 'Y' }">
           <td class="text-left">
             <a href="javascript:remove('${content.filename}');" target="blank">Delete</a>
+          </td>
+          <td class="text-left">
+            <a href="javascript:undo('${content.filename}');" target="blank">Undo</a>
           </td>
           </c:if>
         </tr>

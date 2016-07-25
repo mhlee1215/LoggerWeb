@@ -20,6 +20,36 @@
 		<result column="SIZE" property="size" />
  	</resultMap>
  	
+ 	<resultMap id="Date" class="uci.vision.logger.server.domain.Date">
+		<result column="DATE" property="date" />
+		<result column="SIZE" property="size" />
+ 	</resultMap>
+ 	
+ 	
+ 	<select id="getDate" resultMap="Date" 
+ 						parameterClass="uci.vision.logger.server.domain.LogContent">
+ 	SELECT a.DATE DATE, count(a.DATE) SIZE 
+ 	FROM (
+        SELECT left(date, 10) date
+ 		FROM contentTable
+ 		WHERE ID = ID and date != 'null' and date != ''
+ 		<isNotEmpty property="isvalid" prepend="and">
+ 		ISVALID = #isvalid#
+ 		</isNotEmpty>
+ 		<isNotEmpty property="transmitted" prepend="and">
+ 		TRANSMITTED = #transmitted#
+ 		</isNotEmpty>
+ 		<isNotEmpty property="type" prepend="and">
+ 		TYPE = #type#
+ 		</isNotEmpty>
+ 		<isNotEmpty property="category" prepend="and">
+ 		CATEGORY = #category#
+ 		</isNotEmpty>
+		) a
+    group by a.date
+    order by a.date desc
+    </select>
+ 	
  	<select id="getCategory" resultMap="Category" 
  						parameterClass="uci.vision.logger.server.domain.LogContent">
  		SELECT CATEGORY, count(CATEGORY) SIZE
@@ -55,6 +85,9 @@
  		</isNotEmpty>
  		<isNotEmpty property="type" prepend="and">
  		TYPE = #type#
+ 		</isNotEmpty>
+ 		<isNotEmpty property="date" prepend="and">
+ 		DATE like '$date$%'
  		</isNotEmpty>
  		ORDER BY ID DESC
  	</select>

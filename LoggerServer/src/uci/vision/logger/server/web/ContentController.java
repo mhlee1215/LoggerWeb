@@ -18,6 +18,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import uci.vision.logger.server.domain.Category;
 import uci.vision.logger.server.domain.Constant;
+import uci.vision.logger.server.domain.Date;
 import uci.vision.logger.server.domain.LogContent;
 import uci.vision.logger.server.service.LogContentService;
 import uci.vision.logger.service.utils.MyJsonUtil;
@@ -36,6 +37,17 @@ public class ContentController {
 		LogContent lc = LogContent.readFromRequest(request);
 		System.out.println("LC:"+lc);
 		List<LogContent> lcList = logContentService.readContents(lc);
+		
+		HttpHeaders responseHeaders = new HttpHeaders();
+		responseHeaders.add("Content-Type", "text/html; charset=UTF-8");
+		return new ResponseEntity<String>(MyJsonUtil.toString(lcList, "logContents"), responseHeaders, HttpStatus.CREATED);
+	}
+	
+	@RequestMapping("/readContentsForWeb.do")
+	public ResponseEntity<String> readContentsForWeb(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		LogContent lc = LogContent.readFromRequest(request);
+		System.out.println("LC:"+lc);
+		List<LogContent> lcList = logContentService.readContentsForWeb(lc);
 		
 		HttpHeaders responseHeaders = new HttpHeaders();
 		responseHeaders.add("Content-Type", "text/html; charset=UTF-8");
@@ -85,8 +97,16 @@ public class ContentController {
 	
 	
 	@RequestMapping("/index.do")
-    public ModelAndView logout(HttpServletRequest request, HttpServletResponse response) {
+    public ModelAndView login(HttpServletRequest request, HttpServletResponse response) {
 		String isAdmin = ServletRequestUtils.getStringParameter(request, "isAdmin", "");
+		
+		if("Y".equalsIgnoreCase(isAdmin)){
+			request.getSession().setAttribute("isAdmin", "Y");
+		}
+		
+		if("".equals(isAdmin)){
+			isAdmin = (String)request.getSession().getAttribute("isAdmin");
+		}
 		
 		LogContent lc = LogContent.readFromRequest(request);
 		
@@ -95,15 +115,18 @@ public class ContentController {
 		lc.setType(Constant.FILE_TYPE_LOG);
 		
 		System.out.println("LC:"+lc);
-		List<LogContent> lcList = logContentService.readContents(lc);
+		List<LogContent> lcList = logContentService.readContentsForWeb(lc);
 		
 		List<Category> cat = logContentService.getCategory(lc);
+		List<Date> date = logContentService.getDate(lc);
 		
 		ModelAndView model = new ModelAndView("contentList");
 		model.addObject("contentList", lcList);
 		model.addObject("cat", cat);
+		model.addObject("date", date);
 		model.addObject("isAdmin", isAdmin);
 		model.addObject("cur_cat", lc.getCategory());
+		model.addObject("cur_date", lc.getDate().substring(0, Math.min(lc.getDate().length(), 10)));
 		return model;
     }
 	
@@ -123,7 +146,7 @@ public class ContentController {
 		
 		List<Category> cat = logContentService.getCategory(lc);
 		
-		ModelAndView model = new ModelAndView("redirect:index.do");
+		ModelAndView model = new ModelAndView("redirect:index.do?category="+lc.getCategory());
 		model.addObject("contentList", lcList);
 		model.addObject("cat", cat);
 		model.addObject("isAdmin", isAdmin);
@@ -139,7 +162,7 @@ public class ContentController {
 		
 		logContentService.changeCategory(lc.getFilename(), toCategory);
 	
-		ModelAndView model = new ModelAndView("redirect:index.do");
+		ModelAndView model = new ModelAndView("redirect:index.do?category="+lc.getCategory());
 		return model;
     }
 	
@@ -148,22 +171,18 @@ public class ContentController {
 		String isAdmin = ServletRequestUtils.getStringParameter(request, "isAdmin", "");
 		LogContent lc = LogContent.readFromRequest(request);
 		
-//		logContentService.removeContents(lc);
-		
-		lc.setIsvalid("Y");
-		lc.setTransmitted("Y");
-		lc.setType(Constant.FILE_TYPE_LOG);
-		
-		System.out.println("LC:"+lc);
-		List<LogContent> lcList = logContentService.readContents(lc);
-		
-		List<Category> cat = logContentService.getCategory(lc);
-		
+		logContentService.undoContents(lc);
+
 		ModelAndView model = new ModelAndView("redirect:index.do");
-		model.addObject("contentList", lcList);
-		model.addObject("cat", cat);
-		model.addObject("isAdmin", isAdmin);
-		model.addObject("cur_cat", lc.getCategory());
+		model.addObject("category", lc.getCategory());
+		return model;
+    }
+	
+	@RequestMapping("/logout.do")
+    public ModelAndView logout(HttpServletRequest request, HttpServletResponse response) {
+		
+		request.getSession().removeAttribute("isAdmin");
+		ModelAndView model = new ModelAndView("redirect:index.do");
 		return model;
     }
 }
