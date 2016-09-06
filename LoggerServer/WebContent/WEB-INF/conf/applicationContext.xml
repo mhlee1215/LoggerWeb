@@ -20,7 +20,8 @@
 	<bean id="dataSource"  class="org.apache.commons.dbcp.BasicDataSource">
     	<property name="driverClassName" value="core.log.jdbc.driver.MysqlDriver" />
     	
-    	<property name="url" value="jdbc:mysql://54.191.113.175:3306/kinect_logger" />
+    	<!-- <property name="url" value="jdbc:mysql://54.191.113.175:3306/kinect_logger" /> -->
+    	<property name="url" value="jdbc:mysql://mhlee-pc.ics.uci.edu:3306/kinect_logger" />
     	<property name="username" value="root" />
     	<property name="password" value="a12345!" />
     	

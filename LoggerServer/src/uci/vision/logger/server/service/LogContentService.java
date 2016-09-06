@@ -55,7 +55,7 @@ public class LogContentService  {
 				cc.setDate(cc.getDate().replace(" ", "<br>"));
 			}
 			
-			File f = new File (Constant.complete_home+cc.getFilename()+".ply");
+			File f = new File (Constant.complete_home+cc.getFilename()+"_cvt.ply");
 			if(!f.exists()) continue;
 			File f2 = new File (Constant.complete_home+cc.getFilename()+".rgb.jpg");
 			if(!f2.exists()) continue;
@@ -92,16 +92,22 @@ public class LogContentService  {
 		logContentDao.updateContents(logContent);
 		
 		trashFile(logContent.getFilename());
-		trashFile(logContent.getFilename()+".ply");
+		trashFile(logContent.getFilename()+"_ori.ply");
+		trashFile(logContent.getFilename()+"_cvt.ply");
 		trashFile(logContent.getFilename()+".freiburg");
+		trashFile(logContent.getFilename()+"_cvt.freiburg");
 		trashFile(logContent.getFilename()+".rgb.jpg");
 		deletePotreeWebFile(logContent.getFilename());
 	}
 	
 	public void undoContents(LogContent logContent){	
 		undoFile(logContent.getFilename());
+		renameFile(logContent.getFilename()+"_ori.ply", logContent.getFilename()+".ply");
 		undoFile(logContent.getFilename()+".ply");
+		deleteFile(Constant.complete_home+logContent.getFilename()+"_cvt.ply");
+		deleteFile(Constant.complete_home+logContent.getFilename()+"_cvt.freiburg");
 		undoFile(logContent.getFilename()+".freiburg");
+		//undoFile(logContent.getFilename()+"_cvt.freiburg");
 		undoFile(logContent.getFilename()+".rgb.jpg");
 		deletePotreeWebFile(logContent.getFilename());
 	}
@@ -179,12 +185,16 @@ public class LogContentService  {
 		
 		renameFile(nameFrom, nameTo);
 		undoFile(nameTo);
-		renameFile(nameFrom+".ply", nameTo+".ply");
-		undoFile(nameTo+".ply");
+		renameFile(nameFrom+".ply", nameTo+"_ori.ply");
+		undoFile(nameTo+"_ori.ply");
+		renameFile(nameFrom+".ply", nameTo+"_cvt.ply");
+		undoFile(nameTo+"_cvt.ply");
 		renameFile(nameFrom+".rgb.jpg", nameTo+".rgb.jpg");
 		undoFile(nameTo+".rgb.jpg");
 		renameFile(nameFrom+".freiburg", nameTo+".freiburg");
 		undoFile(nameTo+".freiburg");
+		renameFile(nameFrom+".freiburg", nameTo+"_cvt.freiburg");
+		undoFile(nameTo+"_cvt.freiburg");
 		
 		
 		

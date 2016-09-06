@@ -7,4 +7,5 @@ public class Constant {
 	public static final String complete_home = data_home+"complete/";
 	public static final String trash_home = data_home+"trash/";
 	public static final String potree_home = data_home+"web/examples/";
+	public static final String potreeMerged_home = data_home+"web_merged/examples/";
 }

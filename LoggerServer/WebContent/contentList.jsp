@@ -6,6 +6,7 @@
 <head>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/modal.css">
+  <link rel="stylesheet" href="css/tab.css">
   <link rel="stylesheet" href="css/jquery-ui.css">
   <script src="js/jquery-3.0.0.min.js"></script>
   <script src="js/jquery-ui.min.js"></script>
@@ -156,7 +157,25 @@
 	  
   }
 
-  
+  $(document).ready(function () {
+	   var location = window.location;
+	   var found = false;
+	   $("#tab-container a").each(function(){
+	      var href = $(this).attr("href");
+	      var hrefParts = href.split("/");
+	      var loc = location.toString();
+	      var locParts = loc.split("/");
+	      
+	      
+	      if(hrefParts[hrefParts.length-1]==locParts[locParts.length-1]){
+	         $(this).parent().addClass("selected");
+	         found = true;
+	      }
+	   });
+	   if(!found){
+	      $("#tab-container li:first").addClass("selected");
+	   }
+	});
   
   </script>
 </head>
@@ -170,7 +189,12 @@
   <a href="logout.do">logout</a>
   </div>
   </c:if>
-  <table class="table-fill">
+  
+  <div id="content">
+   <jsp:include page="menu.jsp"></jsp:include>
+   <div id="main-container">
+      
+      <table class="table-fill">
     <thead>
     <tr>
     <th class="text-left" width="200px">Name</th>
@@ -229,7 +253,8 @@
             <a href="javascript:openModal('http://mhlee-pc.ics.uci.edu//data/web/examples/${content.filename}.html', '${content.filename}');" target="blank">View Model</a>
           </td>
           <td class="text-left">
-            <a href="http://mhlee-pc.ics.uci.edu/data/complete/${content.filename}.ply" target="blank">Download</a>
+            <a href="http://mhlee-pc.ics.uci.edu/data/complete/${content.filename}_cvt.ply" target="blank">ply</a>
+            <a href="http://mhlee-pc.ics.uci.edu/data/complete/${content.filename}_cvt.freiburg" target="blank">pose</a>
           </td>
           <c:if test="${isAdmin == 'Y' }">
           <td class="text-left">
@@ -243,6 +268,13 @@
        </c:forEach>
        </tbody>
   </table>
+      
+   </div>
+</div>
+  
+  
+  
+  
 </div>
 
 <div id="dialog" title="Model Viewer">
